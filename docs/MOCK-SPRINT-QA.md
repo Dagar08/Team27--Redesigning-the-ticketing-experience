@@ -23,13 +23,13 @@
 
 | Test | Expected Result | Actual Result | Status |
 |---|---|---|---|
-| Invalid login credentials | Clear authentication error shown | Not yet tested | NOT TESTED |
-| Mobile viewport | Layout remains usable | Not yet tested | NOT TESTED |
-| Tablet viewport | Layout remains usable | Not yet tested | NOT TESTED |
-| Long team member name | Layout does not break | Not yet tested | NOT TESTED |
-| Long team member blurb | Content wraps or truncates appropriately | Not yet tested | NOT TESTED |
-| Missing/broken team member image | Page remains usable | Team page currently uses initial/avatar placeholders rather than member photos | OBSERVATION |
-| Direct access to Team page while signed out | Authentication behaviour works as intended | Not yet tested | NOT TESTED |
+| Invalid login credentials | Clear authentication error shown | Invalid credentials were rejected and user remained unauthenticated | PASS |
+| Direct access to Team page while signed out | Authentication behaviour works as intended | `/team` redirected to the sign-in page | PASS |
+| Long team member blurb | Content wraps or truncates appropriately | Long blurb wrapped correctly without breaking card or grid layout | PASS |
+| Missing/broken team member image | Page remains usable | Missing photo falls back to initials and layout remains intact | PASS |
+
+### Edge Case Test Result
+No additional bugs were found during invalid-login, signed-out route protection, missing-photo, or long-blurb testing.
 
 ## Bugs / Observations Found
 
