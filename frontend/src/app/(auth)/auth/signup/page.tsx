@@ -34,7 +34,11 @@ export default function SignUpPage() {
     try {
       await signInWithGoogle()
       router.replace('/dashboard')
-    } catch {
+      router.refresh()
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('popup-closed-by-user')) {
+        return
+      }
       toast.error('Google sign-in failed. Please try again.')
     }
   }

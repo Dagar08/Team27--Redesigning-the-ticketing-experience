@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { LogOut, User } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
 
 export function Navbar() {
@@ -10,9 +11,13 @@ export function Navbar() {
   const { user, signOut } = useAuth()
 
   const handleSignOut = async () => {
-    await signOut()
-    router.replace('/auth/signin')
-    router.refresh()
+    try {
+      await signOut()
+      router.replace('/auth/signin')
+      router.refresh()
+    } catch {
+      toast.error('Sign out failed. Please try again.')
+    }
   }
 
   return (
