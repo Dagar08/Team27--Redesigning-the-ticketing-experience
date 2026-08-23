@@ -9,6 +9,7 @@ import {
   signUpWithEmail as fbSignUpWithEmail,
   signInWithGoogle as fbSignInWithGoogle,
   signOut as fbSignOut,
+  resetPassword as fbResetPassword,
   getIdToken,
 } from '@/lib/firebase/auth'
 import type { AuthContextValue } from '@/types/auth'
@@ -130,6 +131,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null)
   }
 
+  const resetPassword = async (email: string) => {
+    await fbResetPassword(email)
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -140,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUpWithEmail,
         signInWithGoogle,
         signOut,
+        resetPassword,
       }}
     >
       {children}
