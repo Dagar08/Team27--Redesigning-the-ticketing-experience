@@ -56,7 +56,11 @@ export default function SignInPage() {
     try {
       await signInWithGoogle()
       router.replace('/dashboard')
-    } catch {
+      router.refresh()
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('popup-closed-by-user')) {
+        return
+      }
       toast.error('Google sign-in failed. Please try again.')
     }
   }
@@ -137,6 +141,12 @@ export default function SignInPage() {
             <label htmlFor="password" className="text-sm font-medium text-zinc-300">
               Password
             </label>
+             <Link
+              href="/auth/forgot-password"
+              className="text-xs font-medium text-gp-gold-500 hover:underline"
+            >
+              Forgot password?
+            </Link>
           </div>
           <input
             id="password"
