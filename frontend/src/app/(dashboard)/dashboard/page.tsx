@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { TicketCard } from '@/components/dashboard/TicketCard'
+import { RaceCard } from '@/components/dashboard/RaceCard'
 import {
   nextRace,
   standings,
   circuitStats,
-  tickets,
+  ticket,
   upgradePackages,
+  upcomingRaces,
   upcomingEvents,
 } from '@/features/dashboard/data'
 
@@ -26,7 +28,9 @@ export default function DashboardPage() {
               Next race
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">{nextRace.name}</h1>
-            <p className="mt-2 text-sm text-zinc-400">{nextRace.location}</p>
+            <p className="mt-2 text-sm text-zinc-400">
+              {nextRace.venue}, {nextRace.location}
+            </p>
             <p className="text-sm text-zinc-400">{nextRace.dateRange}</p>
             <Link
               href="#"
@@ -36,11 +40,8 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <div className="shrink-0 sm:w-56">
-            <p className="mb-2 text-center text-xs text-zinc-500">{nextRace.circuitName}</p>
-            <div className="flex aspect-square items-center justify-center rounded-lg border border-dashed border-white/15 text-center text-xs text-zinc-600">
-              Circuit outline
-            </div>
+          <div className="flex aspect-[3/1] flex-1 items-center justify-center rounded-lg border border-dashed border-white/15 text-center text-xs text-zinc-600 sm:aspect-auto sm:h-full sm:min-h-32">
+            Event banner
           </div>
         </div>
 
@@ -48,7 +49,7 @@ export default function DashboardPage() {
         <div className="grid gap-6 md:grid-cols-2">
           <div className="rounded-xl border border-white/10 bg-asphalt-900 p-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Standings</h2>
+              <h2 className="text-lg font-semibold text-white">Driver standings</h2>
               <Link href="#" className="text-xs font-medium text-gp-gold-500 hover:underline">
                 Full standings →
               </Link>
@@ -59,45 +60,57 @@ export default function DashboardPage() {
                   key={entry.position}
                   className="flex items-center gap-4 rounded-md border border-white/5 bg-asphalt-800 px-3 py-2 text-sm"
                 >
-                  <span className="w-6 font-mono text-zinc-500">#{entry.position}</span>
+                  <span className="w-8 font-mono text-gp-green-400">P{entry.position}</span>
                   <span className="flex-1 text-white">{entry.driverName}</span>
                   <span className="hidden text-zinc-400 sm:block">{entry.teamName}</span>
-                  <span className="w-10 text-right text-zinc-400">{entry.points ?? '—'}</span>
+                  <span className="w-10 text-right font-medium text-white">
+                    {entry.points ?? '—'}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="rounded-xl border border-white/10 bg-asphalt-900 p-6">
-            <h2 className="text-lg font-semibold text-white">Circuit overview</h2>
-            <div className="mt-4 flex gap-4">
-              <div className="flex aspect-square flex-1 items-center justify-center rounded-lg border border-dashed border-white/15 text-center text-xs text-zinc-600">
-                Circuit map
-              </div>
-              <dl className="w-24 shrink-0 space-y-4 text-sm">
-                <div>
-                  <dt className="text-xs text-zinc-500">Length</dt>
-                  <dd className="text-white">{circuitStats.length}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-zinc-500">Laps</dt>
-                  <dd className="text-white">{circuitStats.laps}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-zinc-500">Distance</dt>
-                  <dd className="text-white">{circuitStats.distance}</dd>
-                </div>
-              </dl>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">Circuit overview</h2>
+              <span className="text-xs text-zinc-500">{nextRace.circuitName}</span>
             </div>
+            <div className="mt-4 flex aspect-[2/1] items-center justify-center rounded-lg border border-dashed border-white/15 text-center text-xs text-zinc-600">
+              Circuit map
+            </div>
+            <dl className="mt-4 grid grid-cols-4 gap-2 text-center text-sm">
+              <div>
+                <dt className="text-xs text-zinc-500">Length</dt>
+                <dd className="text-white">{circuitStats.length}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-zinc-500">Laps</dt>
+                <dd className="text-white">{circuitStats.laps}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-zinc-500">Fastest lap</dt>
+                <dd className="text-gp-green-400">{circuitStats.fastestLap}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-zinc-500">Distance</dt>
+                <dd className="text-white">{circuitStats.distance}</dd>
+              </div>
+            </dl>
           </div>
         </div>
 
-        {/* Your tickets (full list) */}
+        {/* Upcoming races */}
         <div>
-          <h2 className="mb-4 text-lg font-semibold text-white">Your tickets</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {tickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Upcoming races</h2>
+            <Link href="#" className="text-xs font-medium text-gp-gold-500 hover:underline">
+              View full calendar →
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {upcomingRaces.map((race) => (
+              <RaceCard key={race.id} race={race} />
             ))}
           </div>
         </div>
@@ -107,7 +120,7 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div>
           <h2 className="mb-3 text-lg font-semibold text-white">Your tickets</h2>
-          {tickets[0] && <TicketCard ticket={tickets[0]} />}
+          <TicketCard ticket={ticket} />
         </div>
 
         <div className="rounded-xl border border-white/10 bg-asphalt-900 p-6">
@@ -129,9 +142,9 @@ export default function DashboardPage() {
                 </div>
                 <Link
                   href="#"
-                  className="shrink-0 rounded-full border border-gp-green-500/40 px-3 py-1 text-xs font-medium text-gp-green-400 transition-colors hover:bg-gp-green-500/10"
+                  className="shrink-0 rounded-full bg-gp-green-500 px-3 py-1 text-xs font-semibold text-asphalt-950 transition-colors hover:bg-gp-green-400"
                 >
-                  Upgrade {pkg.price}
+                  {pkg.price} · Upgrade
                 </Link>
               </div>
             ))}
@@ -139,12 +152,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="rounded-xl border border-white/10 bg-asphalt-900 p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white">Upcoming events</h2>
-            <Link href="#" className="text-xs font-medium text-gp-gold-500 hover:underline">
-              View full calendar →
-            </Link>
-          </div>
+          <h2 className="text-sm font-semibold text-white">Your next events</h2>
           <div className="mt-3 space-y-2">
             {upcomingEvents.map((event) => (
               <Link
@@ -152,8 +160,8 @@ export default function DashboardPage() {
                 href="#"
                 className="flex items-center justify-between rounded-md border border-white/5 bg-asphalt-800 px-3 py-2 text-sm transition-colors hover:border-white/10"
               >
-                <span className="text-zinc-400">{event.dateRange}</span>
-                <span className="text-white">{event.name}</span>
+                <span className="w-16 shrink-0 text-xs text-gp-green-400">{event.dateRange}</span>
+                <span className="flex-1 text-white">{event.name}</span>
                 <span className="text-zinc-500">→</span>
               </Link>
             ))}

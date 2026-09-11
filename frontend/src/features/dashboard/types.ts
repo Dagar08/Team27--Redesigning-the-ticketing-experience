@@ -11,6 +11,7 @@
 
 export interface NextRace {
   name: string
+  venue: string
   location: string
   dateRange: string
   circuitName: string
@@ -26,15 +27,19 @@ export interface StandingsEntry {
 export interface CircuitStats {
   length: string
   laps: string
+  fastestLap: string
   distance: string
 }
 
+/** The signed-in user's own ticket for the next race. */
 export interface Ticket {
   id: string
   eventName: string
+  circuitName: string
   dateRange: string
-  venue: string
-  seat: string
+  tier: string
+  holderName: string
+  seatDetails: string
 }
 
 export interface UpgradePackage {
@@ -44,6 +49,16 @@ export interface UpgradePackage {
   price: string
 }
 
+/** A race on the calendar. */
+export interface UpcomingRace {
+  id: string
+  status: 'On-going' | 'Up-coming'
+  raceName: string
+  venue: string
+  dateRange: string
+}
+
+/** A single session within the next race weekend (FP1, Qualifying, etc). */
 export interface UpcomingEvent {
   id: string
   dateRange: string
