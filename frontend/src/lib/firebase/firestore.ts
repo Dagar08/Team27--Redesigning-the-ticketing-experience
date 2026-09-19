@@ -1,6 +1,6 @@
 import { collection, doc, type CollectionReference, type DocumentData } from 'firebase/firestore'
 import { getClientDb } from './client'
-import type { UserProfile } from '@/types/firestore'
+import type { UserProfile, TicketType } from '@/types/firestore'
 
 /**
  * Creates a typed Firestore collection reference.
@@ -22,4 +22,16 @@ export function getUsersCollection() {
 
 export function userDoc(uid: string) {
   return doc(getUsersCollection(), uid)
+}
+
+/**
+ * Ticket explorer reference data. Read-only from the app, rules deny all
+ * client writes, so there is no create/update accessor here by design.
+ */
+export function getTicketTypesCollection() {
+  return typedCollection<TicketType>('ticketType')
+}
+
+export function ticketTypeDoc(id: string) {
+  return doc(getTicketTypesCollection(), id)
 }
