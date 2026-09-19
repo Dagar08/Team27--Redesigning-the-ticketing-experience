@@ -1,0 +1,73 @@
+[
+  {
+    "id": "general-admission-4-day",
+    "name": "General Admission — 4 day",
+    "daysCovered": ["Thu", "Fri", "Sat", "Sun"],
+    "zone": "General",
+    "priceAud": 545,
+    "viewDescription": "Roaming access to all public lawn areas and big screens around the circuit.",
+    "includes": ["Entry all four days", "All public lawn viewing areas", "Access to trackside big screens"],
+    "excludes": ["Reserved seating", "Covered grandstand", "Pit lane walk", "Food and beverage"],
+    "_schemaVersion": 1
+  },
+  {
+    "id": "general-admission-sunday",
+    "name": "General Admission — Sunday only",
+    "daysCovered": ["Sun"],
+    "zone": "General",
+    "priceAud": 235,
+    "viewDescription": "Race-day roaming access to all public lawn areas.",
+    "includes": ["Race day entry", "All public lawn viewing areas"],
+    "excludes": ["Reserved seating", "Practice and qualifying days", "Covered grandstand"],
+    "_schemaVersion": 1
+  },
+  {
+    "id": "grandstand-turn-3-4-day",
+    "name": "Grandstand — Turn 3, 4 day",
+    "daysCovered": ["Thu", "Fri", "Sat", "Sun"],
+    "zone": "Turn 3",
+    "priceAud": 890,
+    "viewDescription": "Elevated view into the Turn 3 braking zone, a common overtaking spot.",
+    "includes": ["Reserved seat all four days", "Covered seating", "General admission access"],
+    "excludes": ["Pit lane walk", "Food and beverage", "Parking"],
+    "_schemaVersion": 1
+  },
+  {
+    "id": "grandstand-main-straight-4-day",
+    "name": "Grandstand — Main Straight, 4 day",
+    "daysCovered": ["Thu", "Fri", "Sat", "Sun"],
+    "zone": "Main Straight",
+    "priceAud": 1150,
+    "viewDescription": "Start-finish line, grid formation and podium celebrations in view.",
+    "includes": ["Reserved seat all four days", "Covered seating", "Podium view", "General admission access"],
+    "excludes": ["Pit lane walk", "Food and beverage", "Parking"],
+    "_schemaVersion": 1
+  },
+  {
+    "id": "grandstand-turn-11-weekend",
+    "name": "Grandstand — Turn 11, weekend",
+    "daysCovered": ["Sat", "Sun"],
+    "zone": "Turn 11",
+    "priceAud": 620,
+    "viewDescription": "Fast sweeping corner with a long run of track visible in both directions.",
+    "includes": ["Reserved seat Saturday and Sunday", "General admission access"],
+    "excludes": ["Thursday and Friday entry", "Covered seating", "Pit lane walk", "Food and beverage"],
+    "_schemaVersion": 1
+  },
+  {
+    "id": "hospitality-paddock-club-4-day",
+    "name": "Hospitality — Paddock Club, 4 day",
+    "daysCovered": ["Thu", "Fri", "Sat", "Sun"],
+    "zone": "Pit Straight",
+    "priceAud": 4950,
+    "viewDescription": "Trackside suite above the pit garages, overlooking the pit lane and start-finish line.",
+    "includes": [
+      "Reserved suite seating all four days",
+      "All-day food and beverage",
+      "Pit lane walk",
+      "Dedicated entry gate"
+    ],
+    "excludes": ["Parking", "Accommodation", "Transfers"],
+    "_schemaVersion": 1
+  }
+]
