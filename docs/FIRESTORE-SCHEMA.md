@@ -46,4 +46,32 @@ This enables **lazy migration** — when a document is read, check `_schemaVersi
 
 ---
 
+## `ticketType` collection
+
+**Path:** `/ticketType/{ticketTypeId}`
+**Access:** Read for any signed-in user. **All client writes denied** — this is reference data.
+
+Backs the ticket explorer's browse, detail and compare screens. Deliberately flat: one
+collection, no relationships, no joins, no user-owned data. See
+`T8 — Ticket Data Structure` design doc.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | `string` | Yes | Firestore document ID, mirrored onto the document |
+| `name` | `string` | Yes | e.g. `"Grandstand — Turn 3, 4 day"` |
+| `daysCovered` | `string[]` | Yes | e.g. `["Thu","Fri","Sat","Sun"]` |
+| `zone` | `string` | Yes | Where at the circuit, e.g. `"Turn 3"` |
+| `priceAud` | `number` | Yes | Price in AUD |
+| `viewDescription` | `string` | No | One line on what you can see from there |
+| `includes` | `string[]` | No | What the ticket covers |
+| `excludes` | `string[]` | No | What it does not cover |
+| `_schemaVersion` | `1` | Yes | Schema version for lazy migration |
+
+**Creation:** Seeded from `firebase/seed/ticket-types.json` via `pnpm run seed:ticket-types`
+(uses the Admin SDK, which bypasses security rules), or entered by hand in the Firebase console.
+The app never writes to this collection.
+**Deletion:** Not possible from the client. Remove documents in the console if needed.
+
+---
+
 <!-- Add new collection schemas below using the /firebase-collection skill -->
