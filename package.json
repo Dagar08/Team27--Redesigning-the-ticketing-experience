@@ -19,10 +19,11 @@
     "bootstrap": "node scripts/bootstrap.js",
     "validate": "node scripts/validate-placeholders.js",
     "hooks": "lefthook install",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "seed:ticket-types": "node scripts/sync-env.js && node scripts/seed-ticket-types.js"
   },
   "devDependencies": {
     "lefthook": "^1.11.13",
-    "next": "16.2.12"
+    "next": "16.3.3"
   }
 }
