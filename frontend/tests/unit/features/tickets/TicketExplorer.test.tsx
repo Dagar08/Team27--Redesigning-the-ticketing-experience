@@ -136,8 +136,12 @@ describe('ticket explorer', () => {
     await user.click(screen.getByRole('button', { name: `Add to selection: ${secondTicket.name}` }))
     expect(screen.getByText('2 ticket types selected')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: `View details: ${firstTicket.name}` }))
-    const selectedButton = screen.getByRole('button', {
+    const availableTickets = screen.getByRole('list', { name: 'Available ticket types' })
+    await user.click(
+      within(availableTickets).getByRole('button', { name: `View details: ${firstTicket.name}` })
+    )
+    const dialog = screen.getByRole('dialog', { name: firstTicket.name })
+    const selectedButton = within(dialog).getByRole('button', {
       name: `Remove from selection: ${firstTicket.name}`,
     })
     expect(selectedButton).toHaveAttribute('aria-pressed', 'true')
@@ -207,7 +211,9 @@ describe('ticket explorer', () => {
     await user.click(screen.getByRole('button', { name: 'Remove twice' }))
     expect(screen.getByText('1 ticket type selected')).toBeInTheDocument()
     const selection = screen.getByRole('complementary', { name: 'Your selection' })
-    expect(within(selection).getByRole('link', { name: secondTicket.name })).toBeInTheDocument()
+    expect(
+      within(selection).getByRole('button', { name: `View details: ${secondTicket.name}` })
+    ).toBeInTheDocument()
   })
 
   it('retries a failed ticket catalog request', async () => {
