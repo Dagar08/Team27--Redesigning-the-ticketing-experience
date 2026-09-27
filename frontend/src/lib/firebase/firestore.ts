@@ -1,5 +1,11 @@
 import { collection, doc, type CollectionReference, type DocumentData } from 'firebase/firestore'
-import { getClientDb } from './client'
+import {
+  collection as restCollection,
+  doc as restDoc,
+  getFirestore as getRestFirestore,
+  type CollectionReference as RestCollectionReference,
+} from 'firebase/firestore/lite'
+import { getClientApp, getClientDb } from './client'
 import type { UserProfile, TicketType } from '@/types/firestore'
 
 /**
@@ -29,9 +35,14 @@ export function userDoc(uid: string) {
  * client writes, so there is no create/update accessor here by design.
  */
 export function getTicketTypesCollection() {
-  return typedCollection<TicketType>('ticketType')
+  // Seeded reference data only needs one-off reads. Lite uses REST and avoids
+  // the full SDK's watch stream / AsyncQueue, including ca9/b815 failures.
+  return restCollection(
+    getRestFirestore(getClientApp()),
+    'ticketType'
+  ) as RestCollectionReference<TicketType>
 }
 
 export function ticketTypeDoc(id: string) {
-  return doc(getTicketTypesCollection(), id)
+  return restDoc(getTicketTypesCollection(), id)
 }
