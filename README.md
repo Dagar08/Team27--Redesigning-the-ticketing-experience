@@ -129,24 +129,20 @@ pnpm run validate         # Check for unreplaced template placeholders
 
 Security is enforced in independent layers — Claude Code guard hooks, HTTP hardening (helmet/CORS/rate limits), token + session-cookie auth, Zod input validation, default-deny Firestore rules, and CI scanning (`pnpm audit`). See [docs/SECURITY.md](docs/SECURITY.md).
 
-### Known `pnpm audit` findings (manual fix)
+### `pnpm audit` overrides
 
-
-`pnpm audit` currently flags two high-severity CVEs — both transitive, dev/build-time only, not runtime-reachable:
+CI fails on any high or critical `pnpm audit` finding. Transitive packages that lag behind a fix are forced to a patched version under `overrides:` in `pnpm-workspace.yaml`:
 
 | Package | Issue | Pulled in by |
 |---------|-------|--------------|
-| `js-yaml` | CVE-2026-59870 — quadratic CPU DoS on `!!omap` resolution | eslint's dependency chain (lint-time only) |
-| `nanoid` | Infinite loop when a custom generator's `size` is 0 | postcss, used by Tailwind/Next/Vitest builds (build-time only) |
+| `sharp` (`^0.35.4`) | libheif vulnerabilities (GHSA-rgj7-g3m4-5g8c) | `next` image optimization |
+| `js-yaml` (`^4.3.2`) | CVE-2026-59870 and GHSA-2883-xcg3-v3hh — CPU DoS | eslint's dependency chain (lint-time only) |
+| `nanoid` (`^3.3.18`) | Infinite loop when a custom generator's `size` is 0 | postcss, used by Tailwind/Next/Vitest builds (build-time only) |
+| `postcss` (`^8.5.18`) | Old copy bundled inside `next` | `next` |
 
-To patch: add these two lines under `overrides:` in `pnpm-workspace.yaml`, then run `pnpm install`:
+`next` itself is pinned in both `package.json` and `frontend/package.json` (keep `eslint-config-next` on the same version) — bump all three together when a Next.js advisory lands.
 
-```yaml
-  js-yaml: '^4.3.1'
-  nanoid: '^3.3.17'
-```
-
-Confirm with `pnpm audit` — should show 0 high/critical findings.
+After changing an override or version, run `pnpm install` and confirm with `pnpm audit --audit-level=high` — it should show 0 high/critical findings.
 
 ## Git Workflow
 
