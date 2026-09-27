@@ -1,0 +1,78 @@
+'use client'
+
+import { cn } from '@/lib/utils'
+import type { TicketType } from '@/types/firestore'
+import { useTicketExplorer } from './TicketExplorerProvider'
+import { TicketPrice, ticketButtonClassName } from './TicketElements'
+
+export function TicketSelectionButton({ ticket }: { ticket: TicketType }) {
+  const { selectedTickets, addTicket, removeTicket } = useTicketExplorer()
+  const selected = selectedTickets.some((item) => item.id === ticket.id)
+
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      aria-label={`${selected ? 'Remove from' : 'Add to'} selection: ${ticket.name}`}
+      onClick={() => (selected ? removeTicket(ticket.id) : addTicket(ticket.id))}
+      className={cn(
+        ticketButtonClassName,
+        selected
+          ? 'border-gp-green-500 text-gp-green-400'
+          : 'bg-gp-green-500 text-asphalt-950 hover:bg-gp-green-400 border-transparent'
+      )}
+    >
+      {selected ? 'Remove from selection' : 'Add to selection'}
+    </button>
+  )
+}
+
+export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string) => void }) {
+  const { selectedTickets, removeTicket, clearSelection } = useTicketExplorer()
+
+  return (
+    <aside
+      aria-label="Your selection"
+      className="bg-asphalt-900 space-y-4 self-start rounded-xl border border-white/10 p-6"
+    >
+      <h2 className="text-lg font-semibold text-white">Your selection</h2>
+      <p role="status" className="text-sm text-zinc-400">
+        {selectedTickets.length} ticket {selectedTickets.length === 1 ? 'type' : 'types'} selected
+      </p>
+      {selectedTickets.length === 0 ? (
+        <p className="text-sm text-zinc-400">
+          No tickets selected. Add a ticket from the list or its details.
+        </p>
+      ) : (
+        <>
+          <ul className="space-y-3">
+            {selectedTickets.map((ticket) => (
+              <li key={ticket.id} className="space-y-3 rounded-lg border border-white/10 p-4">
+                <button
+                  type="button"
+                  aria-label={`View details: ${ticket.name}`}
+                  onClick={() => onViewDetails(ticket.id)}
+                  className="hover:text-gp-green-400 focus-visible:outline-gp-green-400 text-left text-sm font-medium text-white hover:underline focus-visible:outline-2"
+                >
+                  {ticket.name}
+                </button>
+                <TicketPrice price={ticket.priceAud} />
+                <button
+                  type="button"
+                  aria-label={`Remove ${ticket.name} from selection`}
+                  onClick={() => removeTicket(ticket.id)}
+                  className={ticketButtonClassName}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button type="button" onClick={clearSelection} className={ticketButtonClassName}>
+            Clear selection
+          </button>
+        </>
+      )}
+    </aside>
+  )
+}
