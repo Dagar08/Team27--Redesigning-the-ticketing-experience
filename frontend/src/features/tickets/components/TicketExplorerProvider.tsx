@@ -21,10 +21,16 @@ function TicketExplorerState({ children }: { children: ReactNode }) {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const selectedTickets = catalog.tickets.filter((ticket) => selectedIds.includes(ticket.id))
 
-  const addTicket = (id: string) => {
-    if (!catalog.tickets.some((ticket) => ticket.id === id)) return
-    setSelectedIds((current) => (current.includes(id) ? current : [...current, id]))
-  }
+const addTicket = (id: string) => {
+  if (!catalog.tickets.some((ticket) => ticket.id === id)) return
+
+  setSelectedIds((current) => {
+    if (current.includes(id)) return current
+    if (current.length >= 3) return current
+
+    return [...current, id]
+  })
+}
 
   const removeTicket = (id: string) => {
     setSelectedIds((current) => current.filter((selectedId) => selectedId !== id))

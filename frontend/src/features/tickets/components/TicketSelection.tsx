@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { TicketType } from '@/types/firestore'
 import { useTicketExplorer } from './TicketExplorerProvider'
@@ -27,7 +28,11 @@ export function TicketSelectionButton({ ticket }: { ticket: TicketType }) {
   )
 }
 
-export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string) => void }) {
+export function TicketSelection({
+  onViewDetails,
+}: {
+  onViewDetails: (id: string) => void
+}) {
   const { selectedTickets, removeTicket, clearSelection } = useTicketExplorer()
 
   return (
@@ -36,9 +41,11 @@ export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string)
       className="bg-asphalt-900 space-y-4 self-start rounded-xl border border-white/10 p-6"
     >
       <h2 className="text-lg font-semibold text-white">Your selection</h2>
+
       <p role="status" className="text-sm text-zinc-400">
         {selectedTickets.length} ticket {selectedTickets.length === 1 ? 'type' : 'types'} selected
       </p>
+
       {selectedTickets.length === 0 ? (
         <p className="text-sm text-zinc-400">
           No tickets selected. Add a ticket from the list or its details.
@@ -47,7 +54,10 @@ export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string)
         <>
           <ul className="space-y-3">
             {selectedTickets.map((ticket) => (
-              <li key={ticket.id} className="space-y-3 rounded-lg border border-white/10 p-4">
+              <li
+                key={ticket.id}
+                className="space-y-3 rounded-lg border border-white/10 p-4"
+              >
                 <button
                   type="button"
                   aria-label={`View details: ${ticket.name}`}
@@ -56,7 +66,9 @@ export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string)
                 >
                   {ticket.name}
                 </button>
+
                 <TicketPrice price={ticket.priceAud} />
+
                 <button
                   type="button"
                   aria-label={`Remove ${ticket.name} from selection`}
@@ -68,7 +80,21 @@ export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string)
               </li>
             ))}
           </ul>
-          <button type="button" onClick={clearSelection} className={ticketButtonClassName}>
+
+          {selectedTickets.length >= 2 && (
+            <Link
+              href="/tickets/compare"
+              className="bg-gp-green-500 text-asphalt-950 hover:bg-gp-green-400 inline-flex w-full items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-colors"
+            >
+              Compare selected tickets
+            </Link>
+          )}
+
+          <button
+            type="button"
+            onClick={clearSelection}
+            className={ticketButtonClassName}
+          >
             Clear selection
           </button>
         </>
