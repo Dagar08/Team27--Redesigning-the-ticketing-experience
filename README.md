@@ -8,14 +8,14 @@
 
 ## Stack
 
-| | |
-|-|-|
-| **Frontend** | Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind v4 |
-| **Backend** | Firebase Cloud Functions v2 · Express (single "fat lambda") |
-| **Database / Auth** | Firestore · Firebase Authentication (free Spark plan) |
-| **Package manager** | pnpm workspaces — always `pnpm`, never `npm`/`yarn` |
-| **Testing** | Vitest · Testing Library · supertest |
-| **Quality gates** | Lefthook (Conventional Commits, lint, format) · GitHub Actions CI |
+|                     |                                                                   |
+| ------------------- | ----------------------------------------------------------------- |
+| **Frontend**        | Next.js 16 (App Router) · React 19 · TypeScript 5 · Tailwind v4   |
+| **Backend**         | Firebase Cloud Functions v2 · Express (single "fat lambda")       |
+| **Database / Auth** | Firestore · Firebase Authentication (free Spark plan)             |
+| **Package manager** | pnpm workspaces — always `pnpm`, never `npm`/`yarn`               |
+| **Testing**         | Vitest · Testing Library · supertest                              |
+| **Quality gates**   | Lefthook (Conventional Commits, lint, format) · GitHub Actions CI |
 
 There's no local emulator and no Docker — the app always talks to a real (free) Firebase project. Firebase Cloud Storage isn't used either, since real usage requires the paid Blaze plan; store file metadata in Firestore or use a free third-party host if a feature needs uploads.
 
@@ -72,15 +72,15 @@ Restart the dev server after changing `.env` — `NEXT_PUBLIC_*` variables are b
 
 ## Troubleshooting
 
-| Symptom | What to try |
-|--------|-------------|
-| `auth/invalid-api-key` | Fill every `NEXT_PUBLIC_FIREBASE_*` value in the root `.env`, run `pnpm run env:sync`, then restart the dev server. |
-| "Firebase web config is incomplete" on Vercel | A `NEXT_PUBLIC_FIREBASE_*` env var is missing in Vercel. Add it under Project Settings → Environment Variables (same names as your local `.env`), then redeploy — existing deployments don't pick up new env vars automatically. See [docs/CI-CD.md § Vercel Setup](docs/CI-CD.md#vercel-setup-frontend). |
-| `Invalid project id: REPLACE_WITH_...` | Set the real project id in `.firebaserc`. |
-| `'next' is not recognized` / `Command "next" not found` | Run `pnpm install` from the **repo root**. If it persists, delete all `node_modules` folders and reinstall. |
-| Ignored build scripts warning from pnpm | Build approvals live in `pnpm-workspace.yaml` (`allowBuilds`) — re-run `pnpm install`. |
-| "Missing or insufficient permissions" | Firestore security rules don't allow that access — add rules in `firebase/firestore.rules`, then deploy them (`npx firebase-tools deploy --only firestore:rules`). |
-| Commit rejected | Message must be Conventional Commits (`feat: …`, `fix: …`). |
+| Symptom                                                 | What to try                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auth/invalid-api-key`                                  | Fill every `NEXT_PUBLIC_FIREBASE_*` value in the root `.env`, run `pnpm run env:sync`, then restart the dev server.                                                                                                                                                                                       |
+| "Firebase web config is incomplete" on Vercel           | A `NEXT_PUBLIC_FIREBASE_*` env var is missing in Vercel. Add it under Project Settings → Environment Variables (same names as your local `.env`), then redeploy — existing deployments don't pick up new env vars automatically. See [docs/CI-CD.md § Vercel Setup](docs/CI-CD.md#vercel-setup-frontend). |
+| `Invalid project id: REPLACE_WITH_...`                  | Set the real project id in `.firebaserc`.                                                                                                                                                                                                                                                                 |
+| `'next' is not recognized` / `Command "next" not found` | Run `pnpm install` from the **repo root**. If it persists, delete all `node_modules` folders and reinstall.                                                                                                                                                                                               |
+| Ignored build scripts warning from pnpm                 | Build approvals live in `pnpm-workspace.yaml` (`allowBuilds`) — re-run `pnpm install`.                                                                                                                                                                                                                    |
+| "Missing or insufficient permissions"                   | Firestore security rules don't allow that access — add rules in `firebase/firestore.rules`, then deploy them (`npx firebase-tools deploy --only firestore:rules`).                                                                                                                                        |
+| Commit rejected                                         | Message must be Conventional Commits (`feat: …`, `fix: …`).                                                                                                                                                                                                                                               |
 
 More beginner-oriented pitfalls: [docs/GUIDE.md § Common pitfalls](docs/GUIDE.md#6-common-pitfalls).
 
@@ -129,32 +129,24 @@ pnpm run validate         # Check for unreplaced template placeholders
 
 Security is enforced in independent layers — Claude Code guard hooks, HTTP hardening (helmet/CORS/rate limits), token + session-cookie auth, Zod input validation, default-deny Firestore rules, and CI scanning (`pnpm audit`). See [docs/SECURITY.md](docs/SECURITY.md).
 
-### Known `pnpm audit` findings (manual fix)
+### Dependency audit
 
+The workspace pins Next.js and `eslint-config-next` to 16.3.6 and applies patched
+transitive dependencies through `overrides` in `pnpm-workspace.yaml`, including
+`js-yaml`, `nanoid`, `postcss`, `sharp`, `brace-expansion` and `@grpc/grpc-js`.
+Keep the lockfile in sync when changing these overrides.
 
-`pnpm audit` currently flags two high-severity CVEs — both transitive, dev/build-time only, not runtime-reachable:
-
-| Package | Issue | Pulled in by |
-|---------|-------|--------------|
-| `js-yaml` | CVE-2026-59870 — quadratic CPU DoS on `!!omap` resolution | eslint's dependency chain (lint-time only) |
-| `nanoid` | Infinite loop when a custom generator's `size` is 0 | postcss, used by Tailwind/Next/Vitest builds (build-time only) |
-
-To patch: add these two lines under `overrides:` in `pnpm-workspace.yaml`, then run `pnpm install`:
-
-```yaml
-  js-yaml: '^4.3.1'
-  nanoid: '^3.3.17'
-```
-
-Confirm with `pnpm audit` — should show 0 high/critical findings.
+The T15 check on 2 October 2026 passed `pnpm audit --audit-level=high` with no high
+or critical findings. Nine moderate findings remain. CI runs the same audit so new
+high/critical advisories block a release.
 
 ## Git Workflow
 
-| Branch | Purpose |
-|--------|---------|
-| `main` | Production — protected, no direct pushes |
-| `feature/*` | New features → PR back to `main` |
-| `hotfix/*` | Urgent fixes → PR back to `main` |
+| Branch      | Purpose                                  |
+| ----------- | ---------------------------------------- |
+| `main`      | Production — protected, no direct pushes |
+| `feature/*` | New features → PR back to `main`         |
+| `hotfix/*`  | Urgent fixes → PR back to `main`         |
 
 Use the Claude Code skills `/git-feature`, `/git-hotfix`, `/git-release`. Details: [docs/GIT-WORKFLOW.md](docs/GIT-WORKFLOW.md).
 
@@ -162,42 +154,40 @@ Use the Claude Code skills `/git-feature`, `/git-hotfix`, `/git-release`. Detail
 
 The repo ships a pre-configured harness: three MCP servers (**context7** for live library docs, **firebase** for Firestore/deploy tooling, **stitch** for design-to-code), three sub-agents (**security-reviewer**, **doc-auditor**, **test-writer**), enforcement hooks (blocks `any`, secret prefixes, direct pushes to `main`, unapproved deploys), and skills for scaffolding and quality:
 
-| Category | Skills |
-|----------|--------|
-| Setup | `/bootstrap` — guided end-to-end local setup with verification |
+| Category    | Skills                                                                                                                                             |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Setup       | `/bootstrap` — guided end-to-end local setup with verification                                                                                     |
 | Scaffolding | `/new-feature` · `/new-page` · `/new-component` · `/firebase-collection` · `/add-auth-provider` · `/add-route` · `/evolve-schema` · `/add-env-var` |
-| Quality | `/verify` · `/checkpoint` · `/save-session` · `/resume-session` |
-| Git | `/git-feature` · `/git-hotfix` · `/git-release` |
+| Quality     | `/verify` · `/checkpoint` · `/save-session` · `/resume-session`                                                                                    |
+| Git         | `/git-feature` · `/git-hotfix` · `/git-release`                                                                                                    |
 
 See [CLAUDE.md](CLAUDE.md) for the full harness reference.
 
 ## Documentation
 
-| Topic | Link |
-|-------|------|
-| **Beginner guide (start here)** | [docs/GUIDE.md](docs/GUIDE.md) |
-| Verified walkthrough (all steps + code) | [docs/TUTORIAL-WALKTHROUGH.md](docs/TUTORIAL-WALKTHROUGH.md) |
-| Copy-paste setup (no AI, exact steps) | [docs/COPY-PASTE-SETUP.md](docs/COPY-PASTE-SETUP.md) |
-| Copy-paste feature build (no AI, exact file paths) | [docs/COPY-PASTE-FEATURE.md](docs/COPY-PASTE-FEATURE.md) |
-| Slide deck — system overview + AI tooling | [docs/garage-boilerplate-guide.pptx](docs/garage-boilerplate-guide.pptx) |
-| Slide deck — the notes feature, step by step | [docs/notes-feature-tutorial.pptx](docs/notes-feature-tutorial.pptx) |
-| Architecture + diagrams | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
-| Frontend conventions | [docs/FRONTEND.md](docs/FRONTEND.md) |
-| Backend conventions | [docs/BACKEND.md](docs/BACKEND.md) |
-| Design system | [docs/DESIGN.md](docs/DESIGN.md) |
-| Firestore schema | [docs/FIRESTORE-SCHEMA.md](docs/FIRESTORE-SCHEMA.md) |
-| Environment variables | [docs/ENV-VARS.md](docs/ENV-VARS.md) |
-| Testing | [docs/TESTING.md](docs/TESTING.md) |
-| Security | [docs/SECURITY.md](docs/SECURITY.md) |
-| Git workflow | [docs/GIT-WORKFLOW.md](docs/GIT-WORKFLOW.md) |
-| CI/CD & deployment | [docs/CI-CD.md](docs/CI-CD.md) |
+| Topic                                              | Link                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Beginner guide (start here)**                    | [docs/GUIDE.md](docs/GUIDE.md)                                           |
+| Verified walkthrough (all steps + code)            | [docs/TUTORIAL-WALKTHROUGH.md](docs/TUTORIAL-WALKTHROUGH.md)             |
+| Copy-paste setup (no AI, exact steps)              | [docs/COPY-PASTE-SETUP.md](docs/COPY-PASTE-SETUP.md)                     |
+| Copy-paste feature build (no AI, exact file paths) | [docs/COPY-PASTE-FEATURE.md](docs/COPY-PASTE-FEATURE.md)                 |
+| Slide deck — system overview + AI tooling          | [docs/garage-boilerplate-guide.pptx](docs/garage-boilerplate-guide.pptx) |
+| Slide deck — the notes feature, step by step       | [docs/notes-feature-tutorial.pptx](docs/notes-feature-tutorial.pptx)     |
+| Architecture + diagrams                            | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)                             |
+| Frontend conventions                               | [docs/FRONTEND.md](docs/FRONTEND.md)                                     |
+| Backend conventions                                | [docs/BACKEND.md](docs/BACKEND.md)                                       |
+| Design system                                      | [docs/DESIGN.md](docs/DESIGN.md)                                         |
+| Firestore schema                                   | [docs/FIRESTORE-SCHEMA.md](docs/FIRESTORE-SCHEMA.md)                     |
+| Environment variables                              | [docs/ENV-VARS.md](docs/ENV-VARS.md)                                     |
+| Testing                                            | [docs/TESTING.md](docs/TESTING.md)                                       |
+| Security                                           | [docs/SECURITY.md](docs/SECURITY.md)                                     |
+| Git workflow                                       | [docs/GIT-WORKFLOW.md](docs/GIT-WORKFLOW.md)                             |
+| CI/CD & deployment                                 | [docs/CI-CD.md](docs/CI-CD.md)                                           |
 
 ## Deployment
 
-The frontend deploys to **Vercel** (free Hobby tier, no billing account needed — this app is server-rendered, so it needs a server host, not static hosting). 
+The frontend deploys to **Vercel** (free Hobby tier, no billing account needed — this app is server-rendered, so it needs a server host, not static hosting).
 Use this to depoy to Vercel - [DEPLOY-TO-VERCEL.md](DEPLOY-TO-VERCEL.md)
-
-
 
 ## Forking for a Client Project
 
