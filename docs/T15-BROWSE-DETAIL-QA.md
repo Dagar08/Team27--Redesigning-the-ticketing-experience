@@ -66,10 +66,22 @@ reviewed. The disposable local QA account and profile were removed after the run
 
 Verified implementation: `a287f19`; dependency patches: `c0a8302`.
 
-Deployment to the documented live URL,
-<https://team27-redesigning-the-ticketing-ex.vercel.app>, is pending the reviewed PR
-and its production release. The current public home page returns HTTP 200, but
-`/tickets` returns HTTP 404 because the ticket prerequisites have not reached main.
+**Production deployment is deferred at the user's request to keep
+[PR #34](https://github.com/Dagar08/Team27--Redesigning-the-ticketing-experience/pull/34)
+as a draft.** The branch includes the unmerged ticket prerequisites from PRs #25,
+#29 and #30. It has not been merged into main or released to production.
+
+GitHub Actions passed lint/typecheck, frontend tests, backend tests and the security
+scan for `d12f14bd19df0caedf83241b294bd62d53e65676`. Vercel successfully built the
+[preview for that revision](https://team27-redesigning-the-ticketing-experience-frontend-4878nsstq.vercel.app).
+The preview redirects to Vercel sign-in, so browser verification of that deployment
+is deferred until an authorized team member can access it.
+
+The documented live URL is
+<https://team27-redesigning-the-ticketing-ex.vercel.app>. Its current public home page
+returns HTTP 200, but `/tickets` returns HTTP 404 because the ticket prerequisites
+have not reached main. The zone indicator is implemented and verified locally;
+it is not yet live on the production URL.
 
 **Signed-in live verification is deferred at the user's request.** Production uses
 Firebase `team27-grandprixproject`; local credentials belong to
@@ -78,4 +90,6 @@ is available. A team member with that access must confirm production ticket read
 modal details/zone and Retry after deployment. Local results do not establish that
 production Firestore rules, seed data or auth configuration are correct.
 
-T15 is ready for review; the production deployment criterion is not yet complete.
+T15 is ready for review; the production zone-indicator and deployment criteria are
+not yet complete. Next owner: review PR #34, obtain merge/release approval, then
+verify the production ticket flow with a verified team-project account.
