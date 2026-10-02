@@ -15,22 +15,23 @@ interface TicketExplorerContextValue extends ReturnType<typeof useTicketTypes> {
 }
 
 const TicketExplorerContext = createContext<TicketExplorerContextValue | null>(null)
+export const MAX_SELECTED_TICKETS = 3
 
 function TicketExplorerState({ children }: { children: ReactNode }) {
   const catalog = useTicketTypes()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const selectedTickets = catalog.tickets.filter((ticket) => selectedIds.includes(ticket.id))
 
-const addTicket = (id: string) => {
-  if (!catalog.tickets.some((ticket) => ticket.id === id)) return
+  const addTicket = (id: string) => {
+    if (!catalog.tickets.some((ticket) => ticket.id === id)) return
 
-  setSelectedIds((current) => {
-    if (current.includes(id)) return current
-    if (current.length >= 3) return current
+    setSelectedIds((current) => {
+      if (current.includes(id)) return current
+      if (current.length >= MAX_SELECTED_TICKETS) return current
 
-    return [...current, id]
-  })
-}
+      return [...current, id]
+    })
+  }
 
   const removeTicket = (id: string) => {
     setSelectedIds((current) => current.filter((selectedId) => selectedId !== id))

@@ -33,7 +33,7 @@ export function useTicketTypes() {
         if (!active) return
         const tickets = snapshot.docs
           .map((document) => ({ ...document.data(), id: document.id }))
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => a.priceAud - b.priceAud || a.name.localeCompare(b.name))
         setState({ tickets, loading: false, error: null })
       } catch (error) {
         if (!active) return

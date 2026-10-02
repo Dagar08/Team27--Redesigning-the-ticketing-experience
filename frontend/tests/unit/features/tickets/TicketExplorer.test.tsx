@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TicketType } from '@/types/firestore'
@@ -51,6 +51,7 @@ function Explorer() {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  window.history.replaceState(null, '', '/tickets')
   Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
     configurable: true,
     value(this: HTMLDialogElement) {
@@ -82,6 +83,136 @@ afterEach(() => {
 })
 
 describe('ticket explorer', () => {
+  it('orders ticket types by price with stable alphabetical ties', async () => {
+    render(<Explorer />)
+    const catalog = [
+      { ...firstTicket, name: 'Zulu', priceAud: 200 },
+      { ...secondTicket, name: 'Alpha', priceAud: 200 },
+      { ...tickets[2]!, name: 'Cheapest', priceAud: 100 },
+    ]
+    await publish(catalog)
+    const list = screen.getByRole('list', { name: 'Available ticket types' })
+    expect(
+      within(list)
+        .getAllByRole('heading')
+        .map((heading) => heading.textContent)
+    ).toEqual(['Cheapest', 'Alpha', 'Zulu'])
+  })
+
+  it('shows the existing zone value and an honest missing-map fallback', async () => {
+    render(<Explorer />)
+    window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
+    await publish([{ ...firstTicket, zone: 'New viewing area' }])
+    const dialog = screen.getByRole('dialog', { name: firstTicket.name })
+    expect(within(dialog).getByLabelText('Ticket zone: New viewing area')).toHaveTextContent(
+      'New viewing area'
+    )
+    expect(within(dialog).getByText('Zone map not available.')).toBeInTheDocument()
+  })
+
+  it('keeps a missing zone readable without inventing a location', async () => {
+    window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
+    render(<Explorer />)
+    await publish([{ ...firstTicket, zone: '' }])
+    expect(
+      within(screen.getByRole('dialog')).getByLabelText('Ticket zone: Not specified')
+    ).toHaveTextContent('Not specified')
+  })
+
+  it('opens a direct detail URL and closes it back to the browse URL', async () => {
+    const user = userEvent.setup()
+    window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
+    render(<Explorer />)
+    await publish()
+    const dialog = screen.getByRole('dialog', { name: firstTicket.name })
+    expect(document.body.style.overflow).toBe('hidden')
+    await user.click(within(dialog).getByRole('button', { name: 'Close ticket details' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(window.location.pathname + window.location.search).toBe('/tickets')
+    expect(document.body.style.overflow).toBe('')
+  })
+
+  it('uses browser back and forward for modal details while preserving selection', async () => {
+    const user = userEvent.setup()
+    render(<Explorer />)
+    await publish()
+    await user.click(screen.getByRole('button', { name: `Add to selection: ${firstTicket.name}` }))
+    const list = screen.getByRole('list', { name: 'Available ticket types' })
+    await user.click(
+      within(list).getByRole('button', { name: `View details: ${firstTicket.name}` })
+    )
+    expect(new URLSearchParams(window.location.search).get('ticket')).toBe(firstTicket.id)
+    await act(async () => window.history.back())
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(screen.getByText('1 ticket type selected')).toBeInTheDocument()
+    await act(async () => window.history.forward())
+    await waitFor(() =>
+      expect(screen.getByRole('dialog', { name: firstTicket.name })).toBeInTheDocument()
+    )
+    expect(mocks.read).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows a clear not-found modal for an invalid detail URL', async () => {
+    const user = userEvent.setup()
+    window.history.replaceState(null, '', '/tickets?ticket=missing-ticket')
+    render(<Explorer />)
+    await publish()
+    const dialog = screen.getByRole('dialog', { name: 'Ticket not found' })
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('no longer in the catalog')
+    await user.click(within(dialog).getByRole('button', { name: 'Back to browse' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('closes on a backdrop click or Escape, but keeps inside padding clicks open', async () => {
+    const user = userEvent.setup()
+    render(<Explorer />)
+    await publish()
+    const detailsButton = screen.getByRole('button', { name: `View details: ${firstTicket.name}` })
+    await user.click(detailsButton)
+    const dialog = screen.getByRole('dialog')
+    vi.spyOn(dialog, 'getBoundingClientRect').mockReturnValue({
+      x: 100,
+      y: 100,
+      left: 100,
+      top: 100,
+      right: 300,
+      bottom: 300,
+      width: 200,
+      height: 200,
+      toJSON: () => ({}),
+    })
+    fireEvent.click(dialog, { clientX: 120, clientY: 120 })
+    expect(dialog).toBeInTheDocument()
+    fireEvent.click(dialog, { clientX: 20, clientY: 20 })
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(detailsButton).toHaveFocus()
+    await user.click(detailsButton)
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+  })
+
+  it('makes the three-ticket selection limit visible and re-enables adding after removal', async () => {
+    const user = userEvent.setup()
+    render(<Explorer />)
+    await publish()
+    for (const ticket of tickets.slice(0, 3)) {
+      await user.click(screen.getByRole('button', { name: `Add to selection: ${ticket.name}` }))
+    }
+    const fourthButton = screen.getByRole('button', {
+      name: `Add to selection: ${tickets[3]!.name}`,
+    })
+    expect(fourthButton).toBeDisabled()
+    expect(fourthButton).toHaveTextContent('Selection limit reached')
+    await user.click(fourthButton)
+    expect(screen.getByText('3 ticket types selected')).toBeInTheDocument()
+    await user.click(
+      screen.getByRole('button', { name: `Remove ${firstTicket.name} from selection` })
+    )
+    expect(fourthButton).toBeEnabled()
+    await user.click(fourthButton)
+    expect(screen.getByText('3 ticket types selected')).toBeInTheDocument()
+  })
+
   it('renders the seeded catalog and opens ticket details in a modal', async () => {
     const user = userEvent.setup()
     render(<Explorer />)
@@ -102,7 +233,7 @@ describe('ticket explorer', () => {
     const dialog = screen.getByRole('dialog', { name: firstTicket.name })
     expect(within(dialog).getByText(firstTicket.viewDescription!)).toBeInTheDocument()
     await user.click(within(dialog).getByRole('button', { name: 'Close ticket details' }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(screen.getByText('0 ticket types selected')).toBeInTheDocument()
     expect(screen.getByText(/No tickets selected/)).toBeInTheDocument()
   })
@@ -122,6 +253,7 @@ describe('ticket explorer', () => {
         expect(within(dialog).getByText(item)).toBeInTheDocument()
       }
       await user.click(within(dialog).getByRole('button', { name: 'Close ticket details' }))
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     }
     expect(mocks.read).toHaveBeenCalledTimes(1)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
@@ -129,7 +261,7 @@ describe('ticket explorer', () => {
 
   it('keeps add/remove state in sync across browse, detail and the selection panel', async () => {
     const user = userEvent.setup()
-    const { rerender } = render(<Explorer />)
+    render(<Explorer />)
     await publish()
 
     await user.click(screen.getByRole('button', { name: `Add to selection: ${firstTicket.name}` }))
@@ -148,6 +280,7 @@ describe('ticket explorer', () => {
     await user.click(selectedButton)
     expect(screen.getByText('1 ticket type selected')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Close ticket details' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 
     expect(
       screen.getByRole('button', { name: `Add to selection: ${firstTicket.name}` })
@@ -257,7 +390,7 @@ describe('ticket explorer', () => {
     ])
     await user.click(screen.getByRole('button', { name: `View details: ${firstTicket.name}` }))
     const dialog = screen.getByRole('dialog', { name: firstTicket.name })
-    expect(within(dialog).getByText('View description not provided.')).toBeInTheDocument()
+    expect(within(dialog).getByText('View description coming soon.')).toBeInTheDocument()
     expect(within(dialog).getAllByText('Not specified for this ticket.')).toHaveLength(2)
   })
 

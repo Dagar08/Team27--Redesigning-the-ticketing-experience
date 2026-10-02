@@ -27,7 +27,7 @@ export function TicketDetailsDialog({
   ticket,
   onClose,
 }: {
-  ticket: TicketType
+  ticket: TicketType | null
   onClose: () => void
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -37,11 +37,18 @@ export function TicketDetailsDialog({
     const dialog = dialogRef.current
     if (!dialog) return
 
+    const previousOverflow = document.body.style.overflow
+    const previousFocus = document.activeElement
+    document.body.style.overflow = 'hidden'
     dialog.showModal()
     closeButtonRef.current?.focus()
 
     return () => {
       if (dialog.open) dialog.close()
+      document.body.style.overflow = previousOverflow
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+        previousFocus.focus({ preventScroll: true })
+      }
     }
   }, [])
 
@@ -65,43 +72,66 @@ export function TicketDetailsDialog({
         event.preventDefault()
         onClose()
       }}
-      className="bg-asphalt-950 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-5xl overflow-y-auto rounded-xl border border-white/10 p-4 text-white shadow-2xl backdrop:bg-black/80 sm:p-6"
+      className="bg-asphalt-950 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-5xl overflow-y-auto overscroll-contain rounded-xl border border-white/10 p-0 text-white shadow-2xl backdrop:bg-black/80"
     >
-      <article className="space-y-6">
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
+      <article className="break-words">
+        <header className="bg-asphalt-950 sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 p-4 sm:p-6">
+          <div className="min-w-0 flex-1 space-y-2">
             <h2 id="ticket-details-title" className="text-2xl font-bold tracking-tight">
-              {ticket.name}
+              {ticket?.name || 'Ticket not found'}
             </h2>
-            <TicketPrice price={ticket.priceAud} />
+            {ticket && <TicketPrice price={ticket.priceAud} />}
           </div>
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close ticket details"
-            className={`${ticketButtonClassName} p-2`}
+            className={`${ticketButtonClassName} shrink-0 p-2`}
           >
             <X aria-hidden="true" className="size-5" />
           </button>
         </header>
 
-        <TicketFacts ticket={ticket} />
+        <div className="space-y-6 p-4 sm:p-6">
+          {ticket ? (
+            <>
+              <TicketFacts ticket={ticket} showZoneIndicator />
 
-        <section className="space-y-3 border-t border-white/10 pt-6">
-          <h3 className="text-lg font-semibold text-white">View description</h3>
-          <p className="text-sm leading-relaxed text-zinc-300">
-            {ticket.viewDescription || 'View description not provided.'}
-          </p>
-        </section>
+              <section className="space-y-3 border-t border-white/10 pt-6">
+                <h3 className="text-lg font-semibold text-white">Zone and location</h3>
+                <p className="text-sm text-zinc-400">Zone map not available.</p>
+                <p className="text-sm text-zinc-400">
+                  Seat allocation not specified for this ticket.
+                </p>
+              </section>
 
-        <div className="grid gap-6 border-t border-white/10 pt-6 sm:grid-cols-2">
-          <TicketBenefits title="What's included" items={ticket.includes} />
-          <TicketBenefits title="What's not included" items={ticket.excludes} />
-        </div>
+              <section className="space-y-3 border-t border-white/10 pt-6">
+                <h3 className="text-lg font-semibold text-white">View description</h3>
+                <p className="text-sm leading-relaxed text-zinc-300">
+                  {ticket.viewDescription || 'View description coming soon.'}
+                </p>
+              </section>
 
-        <div className="border-t border-white/10 pt-6">
-          <TicketSelectionButton ticket={ticket} />
+              <div className="grid gap-6 border-t border-white/10 pt-6 md:grid-cols-2">
+                <TicketBenefits title="What's included" items={ticket.includes} />
+                <TicketBenefits title="What's not included" items={ticket.excludes} />
+              </div>
+
+              <div className="border-t border-white/10 pt-6">
+                <TicketSelectionButton ticket={ticket} />
+              </div>
+            </>
+          ) : (
+            <>
+              <p role="alert" className="text-sm text-zinc-300">
+                This ticket is no longer in the catalog. Choose another ticket from the browse list.
+              </p>
+              <button type="button" onClick={onClose} className={ticketButtonClassName}>
+                Back to browse
+              </button>
+            </>
+          )}
         </div>
       </article>
     </dialog>
