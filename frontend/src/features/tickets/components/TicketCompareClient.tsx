@@ -13,8 +13,36 @@ function formatPrice(price: number) {
   }).format(price)
 }
 
+function valuesDiffer(values: string[]) {
+  return new Set(values).size > 1
+}
+
 export function TicketCompareClient() {
   const { selectedTickets, removeTicket } = useTicketExplorer()
+
+  const priceDiffers = valuesDiffer(
+    selectedTickets.map((ticket) => String(ticket.priceAud))
+  )
+
+  const daysDiffers = valuesDiffer(
+    selectedTickets.map((ticket) => ticket.daysCovered.join(', '))
+  )
+
+  const zoneDiffers = valuesDiffer(
+    selectedTickets.map((ticket) => ticket.zone)
+  )
+
+  const viewDiffers = valuesDiffer(
+    selectedTickets.map((ticket) => ticket.viewDescription || 'Not specified')
+  )
+
+  const includesDiffers = valuesDiffer(
+    selectedTickets.map((ticket) => (ticket.includes ?? []).join('|'))
+  )
+
+  const excludesDiffers = valuesDiffer(
+    selectedTickets.map((ticket) => (ticket.excludes ?? []).join('|'))
+  )
 
   if (selectedTickets.length < 2) {
     return (
@@ -73,6 +101,13 @@ export function TicketCompareClient() {
                       {ticket.name}
                     </h2>
 
+                    <p className="text-sm text-zinc-400">
+                      Zone:{' '}
+                      <span className="font-medium text-white">
+                        {ticket.zone}
+                      </span>
+                    </p>
+
                     <button
                       type="button"
                       onClick={() => removeTicket(ticket.id)}
@@ -88,7 +123,11 @@ export function TicketCompareClient() {
           </thead>
 
           <tbody>
-            <tr className="border-b border-white/10">
+            <tr
+              className={`border-b border-white/10 ${
+                priceDiffers ? 'bg-gp-gold-500/10' : ''
+              }`}
+            >
               <th className="p-4 text-left text-sm font-medium text-zinc-400">
                 Price
               </th>
@@ -103,7 +142,11 @@ export function TicketCompareClient() {
               ))}
             </tr>
 
-            <tr className="border-b border-white/10">
+            <tr
+              className={`border-b border-white/10 ${
+                daysDiffers ? 'bg-gp-gold-500/10' : ''
+              }`}
+            >
               <th className="p-4 text-left text-sm font-medium text-zinc-400">
                 Days
               </th>
@@ -118,7 +161,11 @@ export function TicketCompareClient() {
               ))}
             </tr>
 
-            <tr className="border-b border-white/10">
+            <tr
+              className={`border-b border-white/10 ${
+                zoneDiffers ? 'bg-gp-gold-500/10' : ''
+              }`}
+            >
               <th className="p-4 text-left text-sm font-medium text-zinc-400">
                 Zone
               </th>
@@ -133,7 +180,11 @@ export function TicketCompareClient() {
               ))}
             </tr>
 
-            <tr className="border-b border-white/10">
+            <tr
+              className={`border-b border-white/10 ${
+                viewDiffers ? 'bg-gp-gold-500/10' : ''
+              }`}
+            >
               <th className="p-4 text-left text-sm font-medium text-zinc-400">
                 View
               </th>
@@ -148,7 +199,11 @@ export function TicketCompareClient() {
               ))}
             </tr>
 
-            <tr className="border-b border-white/10">
+            <tr
+              className={`border-b border-white/10 ${
+                includesDiffers ? 'bg-gp-gold-500/10' : ''
+              }`}
+            >
               <th className="p-4 text-left align-top text-sm font-medium text-zinc-400">
                 Includes
               </th>
@@ -173,7 +228,7 @@ export function TicketCompareClient() {
               ))}
             </tr>
 
-            <tr>
+            <tr className={excludesDiffers ? 'bg-gp-gold-500/10' : ''}>
               <th className="p-4 text-left align-top text-sm font-medium text-zinc-400">
                 Excludes
               </th>
@@ -200,6 +255,10 @@ export function TicketCompareClient() {
           </tbody>
         </table>
       </div>
+
+      <p className="text-sm text-zinc-500">
+        Highlighted rows contain differences between the selected tickets.
+      </p>
     </div>
   )
 }
