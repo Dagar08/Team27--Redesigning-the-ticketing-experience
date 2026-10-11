@@ -19,9 +19,7 @@ function TicketBenefits({ title, items }: { title: string; items?: string[] }) {
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-zinc-400">
-          Not specified for this ticket.
-        </p>
+        <p className="text-sm text-zinc-400">Not specified for this ticket.</p>
       )}
     </section>
   )
@@ -89,10 +87,7 @@ export function TicketDetailsDialog({
       <article className="break-words">
         <header className="bg-asphalt-950 sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 p-4 sm:p-6">
           <div className="min-w-0 flex-1 space-y-2">
-            <h2
-              id="ticket-details-title"
-              className="text-2xl font-bold tracking-tight"
-            >
+            <h2 id="ticket-details-title" className="text-2xl font-bold tracking-tight">
               {ticket?.name || 'Ticket not found'}
             </h2>
 
@@ -116,9 +111,7 @@ export function TicketDetailsDialog({
               <TicketFacts ticket={ticket} showZoneIndicator />
 
               <section className="space-y-3 border-t border-white/10 pt-6">
-                <h3 className="text-lg font-semibold text-white">
-                  Zone and location
-                </h3>
+                <h3 className="text-lg font-semibold text-white">Zone and location</h3>
 
                 <div className="overflow-hidden rounded-lg border border-white/10 bg-white">
                   <Image
@@ -137,9 +130,7 @@ export function TicketDetailsDialog({
               </section>
 
               <section className="space-y-3 border-t border-white/10 pt-6">
-                <h3 className="text-lg font-semibold text-white">
-                  View description
-                </h3>
+                <h3 className="text-lg font-semibold text-white">View description</h3>
 
                 <p className="text-sm leading-relaxed text-zinc-300">
                   {ticket.viewDescription || 'View description coming soon.'}
@@ -147,15 +138,9 @@ export function TicketDetailsDialog({
               </section>
 
               <div className="grid gap-6 border-t border-white/10 pt-6 md:grid-cols-2">
-                <TicketBenefits
-                  title="What's included"
-                  items={ticket.includes}
-                />
+                <TicketBenefits title="What's included" items={ticket.includes} />
 
-                <TicketBenefits
-                  title="What's not included"
-                  items={ticket.excludes}
-                />
+                <TicketBenefits title="What's not included" items={ticket.excludes} />
               </div>
 
               <div className="border-t border-white/10 pt-6">
@@ -165,15 +150,10 @@ export function TicketDetailsDialog({
           ) : (
             <>
               <p role="alert" className="text-sm text-zinc-300">
-                This ticket is no longer in the catalog. Choose another ticket
-                from the browse list.
+                This ticket is no longer in the catalog. Choose another ticket from the browse list.
               </p>
 
-              <button
-                type="button"
-                onClick={onClose}
-                className={ticketButtonClassName}
-              >
+              <button type="button" onClick={onClose} className={ticketButtonClassName}>
                 Back to browse
               </button>
             </>

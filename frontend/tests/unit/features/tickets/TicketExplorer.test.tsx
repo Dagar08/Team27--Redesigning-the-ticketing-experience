@@ -1,14 +1,6 @@
 import { StrictMode } from 'react'
 
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 
 import userEvent from '@testing-library/user-event'
 
@@ -133,15 +125,9 @@ afterEach(() => {
   vi.useRealTimers()
   vi.restoreAllMocks()
 
-  Reflect.deleteProperty(
-    HTMLDialogElement.prototype,
-    'showModal'
-  )
+  Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal')
 
-  Reflect.deleteProperty(
-    HTMLDialogElement.prototype,
-    'close'
-  )
+  Reflect.deleteProperty(HTMLDialogElement.prototype, 'close')
 })
 
 describe('ticket explorer', () => {
@@ -182,11 +168,7 @@ describe('ticket explorer', () => {
   it('shows the existing zone value and the Albert Park circuit map', async () => {
     render(<Explorer />)
 
-    window.history.replaceState(
-      null,
-      '',
-      `/tickets?ticket=${firstTicket.id}`
-    )
+    window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
 
     await publish([
       {
@@ -199,11 +181,9 @@ describe('ticket explorer', () => {
       name: firstTicket.name,
     })
 
-    expect(
-      within(dialog).getByLabelText(
-        'Ticket zone: New viewing area'
-      )
-    ).toHaveTextContent('New viewing area')
+    expect(within(dialog).getByLabelText('Ticket zone: New viewing area')).toHaveTextContent(
+      'New viewing area'
+    )
 
     expect(
       within(dialog).getByRole('img', {
@@ -213,11 +193,7 @@ describe('ticket explorer', () => {
   })
 
   it('keeps a missing zone readable without inventing a location', async () => {
-    window.history.replaceState(
-      null,
-      '',
-      `/tickets?ticket=${firstTicket.id}`
-    )
+    window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
 
     render(<Explorer />)
 
@@ -229,20 +205,14 @@ describe('ticket explorer', () => {
     ])
 
     expect(
-      within(screen.getByRole('dialog')).getByLabelText(
-        'Ticket zone: Not specified'
-      )
+      within(screen.getByRole('dialog')).getByLabelText('Ticket zone: Not specified')
     ).toHaveTextContent('Not specified')
   })
 
   it('opens a direct detail URL and closes it back to the browse URL', async () => {
     const user = userEvent.setup()
 
-    window.history.replaceState(
-      null,
-      '',
-      `/tickets?ticket=${firstTicket.id}`
-    )
+    window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
 
     render(<Explorer />)
 
@@ -260,13 +230,9 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      screen.queryByRole('dialog')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 
-    expect(
-      window.location.pathname + window.location.search
-    ).toBe('/tickets')
+    expect(window.location.pathname + window.location.search).toBe('/tickets')
 
     expect(document.body.style.overflow).toBe('')
   })
@@ -294,25 +260,15 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      new URLSearchParams(
-        window.location.search
-      ).get('ticket')
-    ).toBe(firstTicket.id)
+    expect(new URLSearchParams(window.location.search).get('ticket')).toBe(firstTicket.id)
 
     await act(async () => {
       window.history.back()
     })
 
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('dialog')
-      ).not.toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 
-    expect(
-      screen.getByText('1 ticket type selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('1 ticket type selected')).toBeInTheDocument()
 
     await act(async () => {
       window.history.forward()
@@ -332,11 +288,7 @@ describe('ticket explorer', () => {
   it('shows a clear not-found modal for an invalid detail URL', async () => {
     const user = userEvent.setup()
 
-    window.history.replaceState(
-      null,
-      '',
-      '/tickets?ticket=missing-ticket'
-    )
+    window.history.replaceState(null, '', '/tickets?ticket=missing-ticket')
 
     render(<Explorer />)
 
@@ -346,11 +298,7 @@ describe('ticket explorer', () => {
       name: 'Ticket not found',
     })
 
-    expect(
-      within(dialog).getByRole('alert')
-    ).toHaveTextContent(
-      'no longer in the catalog'
-    )
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('no longer in the catalog')
 
     await user.click(
       within(dialog).getByRole('button', {
@@ -358,9 +306,7 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      screen.queryByRole('dialog')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('closes on a backdrop click or Escape, but keeps inside padding clicks open', async () => {
@@ -378,10 +324,7 @@ describe('ticket explorer', () => {
 
     const dialog = screen.getByRole('dialog')
 
-    vi.spyOn(
-      dialog,
-      'getBoundingClientRect'
-    ).mockReturnValue({
+    vi.spyOn(dialog, 'getBoundingClientRect').mockReturnValue({
       x: 100,
       y: 100,
       left: 100,
@@ -405,11 +348,7 @@ describe('ticket explorer', () => {
       clientY: 20,
     })
 
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('dialog')
-      ).not.toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 
     expect(detailsButton).toHaveFocus()
 
@@ -422,11 +361,7 @@ describe('ticket explorer', () => {
       })
     )
 
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('dialog')
-      ).not.toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
   it('makes the three-ticket selection limit visible and re-enables adding after removal', async () => {
@@ -450,17 +385,11 @@ describe('ticket explorer', () => {
 
     expect(fourthButton).toBeDisabled()
 
-    expect(
-      fourthButton
-    ).toHaveTextContent(
-      'Selection limit reached'
-    )
+    expect(fourthButton).toHaveTextContent('Selection limit reached')
 
     await user.click(fourthButton)
 
-    expect(
-      screen.getByText('3 ticket types selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('3 ticket types selected')).toBeInTheDocument()
 
     await user.click(
       screen.getByRole('button', {
@@ -472,9 +401,7 @@ describe('ticket explorer', () => {
 
     await user.click(fourthButton)
 
-    expect(
-      screen.getByText('3 ticket types selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('3 ticket types selected')).toBeInTheDocument()
   })
 
   it('renders the seeded catalog and opens ticket details in a modal', async () => {
@@ -488,9 +415,7 @@ describe('ticket explorer', () => {
       })
     ).toBeInTheDocument()
 
-    expect(
-      mocks.read
-    ).toHaveBeenCalledWith({
+    expect(mocks.read).toHaveBeenCalledWith({
       path: 'ticketType',
     })
 
@@ -500,9 +425,7 @@ describe('ticket explorer', () => {
       name: 'Available ticket types',
     })
 
-    expect(
-      within(list).getAllByRole('listitem')
-    ).toHaveLength(ticketSeed.length)
+    expect(within(list).getAllByRole('listitem')).toHaveLength(ticketSeed.length)
 
     for (const ticket of tickets) {
       expect(
@@ -528,11 +451,7 @@ describe('ticket explorer', () => {
       name: firstTicket.name,
     })
 
-    expect(
-      within(dialog).getByText(
-        firstTicket.viewDescription!
-      )
-    ).toBeInTheDocument()
+    expect(within(dialog).getByText(firstTicket.viewDescription!)).toBeInTheDocument()
 
     await user.click(
       within(dialog).getByRole('button', {
@@ -540,21 +459,11 @@ describe('ticket explorer', () => {
       })
     )
 
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('dialog')
-      ).not.toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 
-    expect(
-      screen.getByText(
-        '0 ticket types selected'
-      )
-    ).toBeInTheDocument()
+    expect(screen.getByText('0 ticket types selected')).toBeInTheDocument()
 
-    expect(
-      screen.getByText(/No tickets selected/)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/No tickets selected/)).toBeInTheDocument()
   })
 
   it('shows every requested ticket detail in the modal', async () => {
@@ -575,31 +484,16 @@ describe('ticket explorer', () => {
         name: ticket.name,
       })
 
-      expect(
-        within(dialog).getByText(
-          ticket.daysCovered.join(', ')
-        )
-      ).toBeInTheDocument()
+      expect(within(dialog).getByText(ticket.daysCovered.join(', '))).toBeInTheDocument()
 
-      expect(
-        within(dialog).getByLabelText(
-          `Ticket zone: ${ticket.zone}`
-        )
-      ).toHaveTextContent(ticket.zone)
+      expect(within(dialog).getByLabelText(`Ticket zone: ${ticket.zone}`)).toHaveTextContent(
+        ticket.zone
+      )
 
-      expect(
-        within(dialog).getByText(
-          ticket.viewDescription!
-        )
-      ).toBeInTheDocument()
+      expect(within(dialog).getByText(ticket.viewDescription!)).toBeInTheDocument()
 
-      for (const item of [
-        ...ticket.includes!,
-        ...ticket.excludes!,
-      ]) {
-        expect(
-          within(dialog).getByText(item)
-        ).toBeInTheDocument()
+      for (const item of [...ticket.includes!, ...ticket.excludes!]) {
+        expect(within(dialog).getByText(item)).toBeInTheDocument()
       }
 
       await user.click(
@@ -608,20 +502,12 @@ describe('ticket explorer', () => {
         })
       )
 
-      await waitFor(() =>
-        expect(
-          screen.queryByRole('dialog')
-        ).not.toBeInTheDocument()
-      )
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     }
 
-    expect(
-      mocks.read
-    ).toHaveBeenCalledTimes(1)
+    expect(mocks.read).toHaveBeenCalledTimes(1)
 
-    expect(
-      screen.queryByRole('dialog')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('keeps add/remove state in sync across browse, detail and the selection panel', async () => {
@@ -643,45 +529,31 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      screen.getByText('2 ticket types selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('2 ticket types selected')).toBeInTheDocument()
 
-    const availableTickets =
-      screen.getByRole('list', {
-        name: 'Available ticket types',
-      })
+    const availableTickets = screen.getByRole('list', {
+      name: 'Available ticket types',
+    })
 
     await user.click(
-      within(availableTickets).getByRole(
-        'button',
-        {
-          name: `View details: ${firstTicket.name}`,
-        }
-      )
+      within(availableTickets).getByRole('button', {
+        name: `View details: ${firstTicket.name}`,
+      })
     )
 
     const dialog = screen.getByRole('dialog', {
       name: firstTicket.name,
     })
 
-    const selectedButton =
-      within(dialog).getByRole('button', {
-        name: `Remove from selection: ${firstTicket.name}`,
-      })
+    const selectedButton = within(dialog).getByRole('button', {
+      name: `Remove from selection: ${firstTicket.name}`,
+    })
 
-    expect(
-      selectedButton
-    ).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    )
+    expect(selectedButton).toHaveAttribute('aria-pressed', 'true')
 
     await user.click(selectedButton)
 
-    expect(
-      screen.getByText('1 ticket type selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('1 ticket type selected')).toBeInTheDocument()
 
     await user.click(
       screen.getByRole('button', {
@@ -689,29 +561,19 @@ describe('ticket explorer', () => {
       })
     )
 
-    await waitFor(() =>
-      expect(
-        screen.queryByRole('dialog')
-      ).not.toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 
     expect(
       screen.getByRole('button', {
         name: `Add to selection: ${firstTicket.name}`,
       })
-    ).toHaveAttribute(
-      'aria-pressed',
-      'false'
-    )
+    ).toHaveAttribute('aria-pressed', 'false')
 
     expect(
       screen.getByRole('button', {
         name: `Remove from selection: ${secondTicket.name}`,
       })
-    ).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    )
+    ).toHaveAttribute('aria-pressed', 'true')
 
     await user.click(
       screen.getByRole('button', {
@@ -719,18 +581,13 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      screen.getByText('0 ticket types selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('0 ticket types selected')).toBeInTheDocument()
 
     expect(
       screen.getByRole('button', {
         name: `Add to selection: ${secondTicket.name}`,
       })
-    ).toHaveAttribute(
-      'aria-pressed',
-      'false'
-    )
+    ).toHaveAttribute('aria-pressed', 'false')
 
     await user.click(
       screen.getByRole('button', {
@@ -742,10 +599,7 @@ describe('ticket explorer', () => {
       screen.getByRole('button', {
         name: `Remove from selection: ${firstTicket.name}`,
       })
-    ).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    )
+    ).toHaveAttribute('aria-pressed', 'true')
 
     await user.click(
       screen.getByRole('button', {
@@ -753,21 +607,14 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      screen.getByText(/No tickets selected/)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/No tickets selected/)).toBeInTheDocument()
 
-    expect(
-      mocks.read
-    ).toHaveBeenCalledTimes(1)
+    expect(mocks.read).toHaveBeenCalledTimes(1)
   })
 
   it('ignores duplicate additions, unknown tickets, and repeated removals', async () => {
     function SelectionActions() {
-      const {
-        addTicket,
-        removeTicket,
-      } = useTicketExplorer()
+      const { addTicket, removeTicket } = useTicketExplorer()
 
       return (
         <>
@@ -812,9 +659,7 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      screen.getByText('2 ticket types selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('2 ticket types selected')).toBeInTheDocument()
 
     await user.click(
       screen.getByRole('button', {
@@ -822,14 +667,11 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      screen.getByText('1 ticket type selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('1 ticket type selected')).toBeInTheDocument()
 
-    const selection =
-      screen.getByRole('complementary', {
-        name: 'Your selection',
-      })
+    const selection = screen.getByRole('complementary', {
+      name: 'Your selection',
+    })
 
     expect(
       within(selection).getByRole('button', {
@@ -843,15 +685,9 @@ describe('ticket explorer', () => {
 
     render(<Explorer />)
 
-    await act(async () =>
-      requests[0]!.reject(
-        new Error('permission-denied')
-      )
-    )
+    await act(async () => requests[0]!.reject(new Error('permission-denied')))
 
-    expect(
-      screen.getByRole('alert')
-    ).toHaveTextContent(/couldn't load/)
+    expect(screen.getByRole('alert')).toHaveTextContent(/couldn't load/)
 
     await user.click(
       screen.getByRole('button', {
@@ -859,9 +695,7 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      mocks.read
-    ).toHaveBeenCalledTimes(2)
+    expect(mocks.read).toHaveBeenCalledTimes(2)
 
     expect(
       screen.getByRole('status', {
@@ -871,9 +705,7 @@ describe('ticket explorer', () => {
 
     await publish()
 
-    expect(
-      screen.queryByRole('alert')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 
     expect(
       screen.getByRole('heading', {
@@ -883,19 +715,15 @@ describe('ticket explorer', () => {
   })
 
   it('shows a retryable error if Firestore initialization fails', async () => {
-    mocks.getCollection.mockImplementationOnce(
-      () => {
-        throw new Error('Missing config')
-      }
-    )
+    mocks.getCollection.mockImplementationOnce(() => {
+      throw new Error('Missing config')
+    })
 
     const user = userEvent.setup()
 
     render(<Explorer />)
 
-    expect(
-      screen.getByRole('alert')
-    ).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toBeInTheDocument()
 
     await user.click(
       screen.getByRole('button', {
@@ -905,9 +733,7 @@ describe('ticket explorer', () => {
 
     await publish()
 
-    expect(
-      screen.queryByRole('alert')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('shows an empty state when the ticket catalog is empty', async () => {
@@ -915,13 +741,9 @@ describe('ticket explorer', () => {
 
     await publish([])
 
-    expect(
-      screen.getByText('No tickets available')
-    ).toBeInTheDocument()
+    expect(screen.getByText('No tickets available')).toBeInTheDocument()
 
-    expect(
-      screen.queryByRole('alert')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 
     expect(
       screen.queryByRole('button', {
@@ -954,17 +776,9 @@ describe('ticket explorer', () => {
       name: firstTicket.name,
     })
 
-    expect(
-      within(dialog).getByText(
-        'View description coming soon.'
-      )
-    ).toBeInTheDocument()
+    expect(within(dialog).getByText('View description coming soon.')).toBeInTheDocument()
 
-    expect(
-      within(dialog).getAllByText(
-        'Not specified for this ticket.'
-      )
-    ).toHaveLength(2)
+    expect(within(dialog).getAllByText('Not specified for this ticket.')).toHaveLength(2)
   })
 
   it('uses Firestore document IDs even if the mirrored ID is outdated', async () => {
@@ -992,10 +806,9 @@ describe('ticket explorer', () => {
       })
     )
 
-    const selection =
-      screen.getByRole('complementary', {
-        name: 'Your selection',
-      })
+    const selection = screen.getByRole('complementary', {
+      name: 'Your selection',
+    })
 
     expect(
       within(selection).getByRole('button', {
@@ -1021,14 +834,9 @@ describe('ticket explorer', () => {
 
     mocks.auth.loading = true
 
-    const {
-      rerender,
-      unmount,
-    } = render(<Explorer />)
+    const { rerender, unmount } = render(<Explorer />)
 
-    expect(
-      mocks.read
-    ).not.toHaveBeenCalled()
+    expect(mocks.read).not.toHaveBeenCalled()
 
     mocks.auth.loading = false
 
@@ -1048,25 +856,17 @@ describe('ticket explorer', () => {
 
     rerender(<Explorer />)
 
-    expect(
-      mocks.read
-    ).toHaveBeenCalledTimes(2)
+    expect(mocks.read).toHaveBeenCalledTimes(2)
 
     await publish()
 
-    expect(
-      screen.getByText('0 ticket types selected')
-    ).toBeInTheDocument()
+    expect(screen.getByText('0 ticket types selected')).toBeInTheDocument()
 
     mocks.auth.user = null
 
     rerender(<Explorer />)
 
-    expect(
-      screen.getByText(
-        'Please sign in to browse tickets.'
-      )
-    ).toBeInTheDocument()
+    expect(screen.getByText('Please sign in to browse tickets.')).toBeInTheDocument()
 
     unmount()
   })
@@ -1078,13 +878,9 @@ describe('ticket explorer', () => {
 
     const stalled = requests[0]!
 
-    await act(async () =>
-      vi.advanceTimersByTime(15000)
-    )
+    await act(async () => vi.advanceTimersByTime(15000))
 
-    expect(
-      screen.getByRole('alert')
-    ).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toBeInTheDocument()
 
     fireEvent.click(
       screen.getByRole('button', {
@@ -1092,9 +888,7 @@ describe('ticket explorer', () => {
       })
     )
 
-    expect(
-      mocks.read
-    ).toHaveBeenCalledTimes(2)
+    expect(mocks.read).toHaveBeenCalledTimes(2)
 
     await publish()
 
@@ -1106,9 +900,7 @@ describe('ticket explorer', () => {
       })
     ).toBeInTheDocument()
 
-    expect(
-      screen.queryByRole('alert')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('ignores requests from a previous mount under React Strict Mode', async () => {
@@ -1118,17 +910,11 @@ describe('ticket explorer', () => {
       </StrictMode>
     )
 
-    expect(
-      mocks.read
-    ).toHaveBeenCalledTimes(2)
+    expect(mocks.read).toHaveBeenCalledTimes(2)
 
     await publish()
 
-    await act(async () =>
-      requests[0]!.reject(
-        new Error('late failure')
-      )
-    )
+    await act(async () => requests[0]!.reject(new Error('late failure')))
 
     expect(
       screen.getByRole('heading', {
@@ -1136,36 +922,25 @@ describe('ticket explorer', () => {
       })
     ).toBeInTheDocument()
 
-    expect(
-      screen.queryByRole('alert')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('ignores pending requests and timeouts after signing out', async () => {
     vi.useFakeTimers()
 
-    const { rerender } =
-      render(<Explorer />)
+    const { rerender } = render(<Explorer />)
 
     mocks.auth.user = null
 
     rerender(<Explorer />)
 
-    await act(async () =>
-      vi.advanceTimersByTime(15000)
-    )
+    await act(async () => vi.advanceTimersByTime(15000))
 
     await publish()
 
-    expect(
-      screen.getByText(
-        'Please sign in to browse tickets.'
-      )
-    ).toBeInTheDocument()
+    expect(screen.getByText('Please sign in to browse tickets.')).toBeInTheDocument()
 
-    expect(
-      screen.queryByRole('alert')
-    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 
     expect(
       screen.queryByRole('heading', {

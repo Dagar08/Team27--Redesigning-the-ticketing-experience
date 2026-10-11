@@ -7,8 +7,7 @@ export const teamMembers: TeamMember[] = [
     id: 'member-one',
     name: 'Kartikey Dagar',
     role: 'Project Manager',
-    blurb:
-      'A passionate project manager with a focus on delivering high-quality results.',
+    blurb: 'A passionate project manager with a focus on delivering high-quality results.',
     photoUrl: '/team/kartikey-dagar.jpg',
   },
   {
@@ -22,8 +21,7 @@ export const teamMembers: TeamMember[] = [
     id: 'member-three',
     name: 'Julius Ross',
     role: 'Developer',
-    blurb:
-      'A dedicated developer with a passion for clean and maintainable code.',
+    blurb: 'A dedicated developer with a passion for clean and maintainable code.',
     photoUrl: '/team/julius-ross.jpg',
   },
   {
@@ -37,8 +35,7 @@ export const teamMembers: TeamMember[] = [
     id: 'member-five',
     name: 'Matthew (Kar Wei) Kwong',
     role: 'Business Analyst',
-    blurb:
-      'A detail-oriented business analyst with a focus on driving data-informed decisions.',
+    blurb: 'A detail-oriented business analyst with a focus on driving data-informed decisions.',
     photoUrl: '/team/matthew-kwong.jpg',
   },
 ]
