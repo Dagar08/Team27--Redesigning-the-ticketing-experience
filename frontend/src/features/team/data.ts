@@ -29,7 +29,7 @@ export const teamMembers: TeamMember[] = [
     name: 'Toby Davies',
     role: 'UX Designer',
     blurb: 'Dedicated to making interfaces intuitive and delightful.',
-    photoUrl: '/team/toby-davies.jfif',
+    photoUrl: '/team/toby-davies.jpg',
   },
   {
     id: 'member-five',
