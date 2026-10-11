@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import type { TicketType } from '@/types/firestore'
@@ -10,6 +11,7 @@ function TicketBenefits({ title, items }: { title: string; items?: string[] }) {
   return (
     <section className="space-y-3">
       <h3 className="text-lg font-semibold text-white">{title}</h3>
+
       {items?.length ? (
         <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-300">
           {items.map((item, index) => (
@@ -39,13 +41,18 @@ export function TicketDetailsDialog({
 
     const previousOverflow = document.body.style.overflow
     const previousFocus = document.activeElement
+
     document.body.style.overflow = 'hidden'
     dialog.showModal()
     closeButtonRef.current?.focus()
 
     return () => {
-      if (dialog.open) dialog.close()
+      if (dialog.open) {
+        dialog.close()
+      }
+
       document.body.style.overflow = previousOverflow
+
       if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
         previousFocus.focus({ preventScroll: true })
       }
@@ -60,13 +67,16 @@ export function TicketDetailsDialog({
         if (event.target !== event.currentTarget) return
 
         const bounds = event.currentTarget.getBoundingClientRect()
+
         const clickedOutside =
           event.clientX < bounds.left ||
           event.clientX > bounds.right ||
           event.clientY < bounds.top ||
           event.clientY > bounds.bottom
 
-        if (clickedOutside) onClose()
+        if (clickedOutside) {
+          onClose()
+        }
       }}
       onCancel={(event) => {
         event.preventDefault()
@@ -80,8 +90,10 @@ export function TicketDetailsDialog({
             <h2 id="ticket-details-title" className="text-2xl font-bold tracking-tight">
               {ticket?.name || 'Ticket not found'}
             </h2>
+
             {ticket && <TicketPrice price={ticket.priceAud} />}
           </div>
+
           <button
             ref={closeButtonRef}
             type="button"
@@ -100,7 +112,18 @@ export function TicketDetailsDialog({
 
               <section className="space-y-3 border-t border-white/10 pt-6">
                 <h3 className="text-lg font-semibold text-white">Zone and location</h3>
-                <p className="text-sm text-zinc-400">Zone map not available.</p>
+
+                <div className="overflow-hidden rounded-lg border border-white/10 bg-white">
+                  <Image
+                    src="/tickets/albert-park-circuit.png"
+                    alt="Albert Park Grand Prix Circuit map"
+                    width={1200}
+                    height={800}
+                    unoptimized
+                    className="h-auto w-full object-contain"
+                  />
+                </div>
+
                 <p className="text-sm text-zinc-400">
                   Seat allocation not specified for this ticket.
                 </p>
@@ -108,6 +131,7 @@ export function TicketDetailsDialog({
 
               <section className="space-y-3 border-t border-white/10 pt-6">
                 <h3 className="text-lg font-semibold text-white">View description</h3>
+
                 <p className="text-sm leading-relaxed text-zinc-300">
                   {ticket.viewDescription || 'View description coming soon.'}
                 </p>
@@ -115,6 +139,7 @@ export function TicketDetailsDialog({
 
               <div className="grid gap-6 border-t border-white/10 pt-6 md:grid-cols-2">
                 <TicketBenefits title="What's included" items={ticket.includes} />
+
                 <TicketBenefits title="What's not included" items={ticket.excludes} />
               </div>
 
@@ -127,6 +152,7 @@ export function TicketDetailsDialog({
               <p role="alert" className="text-sm text-zinc-300">
                 This ticket is no longer in the catalog. Choose another ticket from the browse list.
               </p>
+
               <button type="button" onClick={onClose} className={ticketButtonClassName}>
                 Back to browse
               </button>
