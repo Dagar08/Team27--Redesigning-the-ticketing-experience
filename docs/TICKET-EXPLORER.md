@@ -4,6 +4,11 @@ Open **Tickets** in the sidebar or **Browse tickets** on the dashboard.
 
 - `/tickets` lists the signed-in user's readable `ticketType` documents from Firestore.
 - Ticket types are ordered by price ascending, then name for tied prices.
+- Every browse card includes the supplied Albert Park circuit schematic with its
+  stored zone highlighted. Compare shows the same map in each ticket column.
+  Hover the zone or its **Highlight zone** button for emphasis. Tab to the button
+  for the same emphasis and a visible focus outline; Enter or Space pins/unpins it.
+  Map interactions do not add, remove, or change a ticket selection.
 - Each **View details** button opens a modal with the price in AUD, days covered,
   a zone indicator from the existing `zone` field, view description, included items,
   and excluded items. Close it with the close button, Escape, a backdrop click,
@@ -43,7 +48,10 @@ Run `pnpm run test:component` for the mocked Firestore interaction tests, includ
 all six seed records, selection changes between the list and modal, read retries, missing data,
 URL/history behavior, and authentication/request cleanup.
 
-The zone indicator displays the stored zone label without inferring seat allocations
-or coordinates. A venue map has not been supplied, so details explicitly show
-"Zone map not available". See [T15 defect dispositions](T15-BROWSE-DETAIL-QA.md)
-for the complete gap log and remaining data dependencies.
+The detail modal's zone indicator displays the stored zone label. Browse and Compare
+now show approximate viewing areas on the supplied schematic. General admission
+shows circuit-wide roaming context rather than a fixed seat. Unknown zones keep
+their label and the base map without a guessed location. No seat allocation or exact
+pit suite is inferred. See [S3W1 map integration](S3W1-CIRCUIT-MAP.md) for the mapping
+and interaction contract, and [T15 defect dispositions](T15-BROWSE-DETAIL-QA.md) for
+the earlier gap log and remaining data dependencies.

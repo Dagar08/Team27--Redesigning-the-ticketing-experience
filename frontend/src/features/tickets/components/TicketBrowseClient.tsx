@@ -15,6 +15,7 @@ import {
 import { TicketSelection, TicketSelectionButton } from './TicketSelection'
 import { TicketDetailsDialog } from './TicketDetailsDialog'
 import { useTicketDetails } from '../hooks/useTicketDetails'
+import { CircuitMap } from './CircuitMap'
 
 export function TicketBrowseClient() {
   const { tickets, loading, error, retry } = useTicketExplorer()
@@ -54,6 +55,7 @@ export function TicketBrowseClient() {
                       <h2 className="text-lg font-semibold text-white">{ticket.name}</h2>
                       <TicketPrice price={ticket.priceAud} />
                       <TicketFacts ticket={ticket} />
+                      <CircuitMap zone={ticket.zone} label={`Circuit map for ${ticket.name}`} />
                       <p className="text-sm leading-relaxed text-zinc-400">
                         {ticket.viewDescription || 'View description coming soon.'}
                       </p>
