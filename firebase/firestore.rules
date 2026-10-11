@@ -56,6 +56,15 @@ service cloud.firestore {
       allow delete: if false; // soft-delete only — set deletedAt field instead
     }
 
+    // ticketType/{ticketTypeId}
+    // Reference data for the ticket explorer. Seeded by hand from the Firebase
+    // console — never written by the app, so every client write is denied.
+    // Nothing here is user-owned, so any signed-in user may read all documents.
+    match /ticketType/{ticketTypeId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if false;
+    }
+
     // Add new collection rules above this comment using the /firebase-collection skill.
 
     // ── Default deny ───────────────────────────────────────────────────────

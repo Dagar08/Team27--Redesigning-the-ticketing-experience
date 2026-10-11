@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
-const PROTECTED_ROUTES = ['/dashboard', '/profile', '/settings']
+const PROTECTED_ROUTES = ['/dashboard', '/profile', '/settings', '/tickets']
 const AUTH_ROUTES = ['/auth/signin', '/auth/signup']
 
 /**

@@ -33,10 +33,10 @@ export default function DashboardPage() {
             </p>
             <p className="text-sm text-zinc-400">{nextRace.dateRange}</p>
             <Link
-              href="#"
+              href="/tickets"
               className="mt-4 inline-flex items-center justify-center rounded-md bg-gp-green-500 px-4 py-2 text-sm font-semibold text-asphalt-950 transition-colors hover:bg-gp-green-400"
             >
-              View event
+              Browse tickets
             </Link>
           </div>
 

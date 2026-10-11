@@ -23,3 +23,28 @@ export interface UserProfile {
 }
 
 export type CreateUserProfileInput = Omit<UserProfile, 'createdAt' | 'updatedAt'>
+
+/**
+ * Reference data for the ticket explorer (browse / detail / compare screens).
+ *
+ * Read-only from the app, seeded by hand from the Firebase console. No
+ * user-owned data, no relationships, no joins. See docs/FIRESTORE-SCHEMA.md.
+ */
+export interface TicketType {
+  /** Firestore document id, mirrored onto the document for convenience. */
+  id: string
+  /** e.g. "Grandstand — Turn 3, 4 day" */
+  name: string
+  /** e.g. ["Thu", "Fri", "Sat", "Sun"] */
+  daysCovered: string[]
+  /** Where at the circuit, e.g. "Turn 3" */
+  zone: string
+  priceAud: number
+  /** One line on what you can see from there. */
+  viewDescription?: string
+  /** What the ticket covers. */
+  includes?: string[]
+  /** What the ticket does not cover. */
+  excludes?: string[]
+  _schemaVersion: 1
+}
