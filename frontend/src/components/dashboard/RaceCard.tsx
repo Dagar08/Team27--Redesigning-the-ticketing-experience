@@ -1,26 +1,31 @@
 import type { UpcomingRace } from '@/features/dashboard/types'
-
-const statusColor: Record<UpcomingRace['status'], string> = {
-  'On-going': 'text-gp-green-400',
-  'Up-coming': 'text-zinc-400',
-}
-
-const borderColor: Record<UpcomingRace['status'], string> = {
-  'On-going': 'border-gp-green-500/40',
-  'Up-coming': 'border-white/10',
-}
+import { cn } from '@/lib/utils'
+import { displayItalic, displayTitle } from '@/lib/styles'
 
 export function RaceCard({ race }: { race: UpcomingRace }) {
+  const live = race.status === 'On-going'
+
   return (
-    <div className={`rounded-xl border ${borderColor[race.status]} bg-asphalt-900 p-4`}>
-      <div className="flex items-center justify-between">
-        <p className={`text-xs font-semibold uppercase tracking-wide ${statusColor[race.status]}`}>
+    <article
+      className={cn(
+        'bg-asphalt-900 h-full rounded-xl border p-4',
+        live ? 'border-gp-red-500' : 'border-asphalt-600'
+      )}
+    >
+      <div className="flex items-start justify-between gap-3 text-xs">
+        <p
+          className={cn(
+            displayTitle,
+            'whitespace-nowrap',
+            live ? 'text-gp-red-400' : 'text-zinc-300'
+          )}
+        >
           {race.status}
         </p>
-        <p className="text-xs text-zinc-500">{race.venue}</p>
+        <p className="text-right text-zinc-300">{race.venue}</p>
       </div>
-      <p className="mt-2 font-semibold text-white">{race.raceName}</p>
-      <p className="mt-1 text-sm text-zinc-400">{race.dateRange}</p>
-    </div>
+      <h3 className={cn(displayItalic, 'mt-3 text-lg text-white')}>{race.raceName}</h3>
+      <p className="mt-1 text-sm text-zinc-300">{race.dateRange}</p>
+    </article>
   )
 }
