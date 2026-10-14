@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import type { TicketType } from '@/types/firestore'
 import { TicketFacts, TicketPrice, ticketButtonClassName } from './TicketElements'
@@ -34,6 +34,7 @@ export function TicketDetailsDialog({
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const [mapFailed, setMapFailed] = useState(false)
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -113,16 +114,23 @@ export function TicketDetailsDialog({
               <section className="space-y-3 border-t border-white/10 pt-6">
                 <h3 className="text-lg font-semibold text-white">Zone and location</h3>
 
-                <div className="overflow-hidden rounded-lg border border-white/10 bg-white">
-                  <Image
-                    src="/tickets/albert-park-circuit.png"
-                    alt="Albert Park Grand Prix Circuit map"
-                    width={1200}
-                    height={800}
-                    unoptimized
-                    className="h-auto w-full object-contain"
-                  />
-                </div>
+                {mapFailed ? (
+                  <div className="bg-asphalt-800 flex aspect-[3/2] items-center justify-center rounded-lg border border-white/10 p-4">
+                    <p className="text-sm text-zinc-400">Circuit map image unavailable.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-hidden rounded-lg border border-white/10 bg-white">
+                    <Image
+                      src="/tickets/albert-park-circuit.png"
+                      alt="Albert Park Grand Prix Circuit map"
+                      width={1200}
+                      height={800}
+                      unoptimized
+                      onError={() => setMapFailed(true)}
+                      className="h-auto w-full object-contain"
+                    />
+                  </div>
+                )}
 
                 <p className="text-sm text-zinc-400">
                   Seat allocation not specified for this ticket.
@@ -150,7 +158,8 @@ export function TicketDetailsDialog({
           ) : (
             <>
               <p role="alert" className="text-sm text-zinc-300">
-                This ticket is no longer in the catalog. Choose another ticket from the browse list.
+                This ticket link is invalid or the ticket is no longer in the catalog. Choose
+                another ticket from the browse list.
               </p>
 
               <button type="button" onClick={onClose} className={ticketButtonClassName}>
