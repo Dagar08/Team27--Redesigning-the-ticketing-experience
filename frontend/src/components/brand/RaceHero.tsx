@@ -23,12 +23,13 @@ export function RaceHero({ eyebrow, title, venue, dateRange, action, className }
         className
       )}
     >
-      <Skyline className="absolute right-4 bottom-0 -z-10 h-24 w-auto text-black/40 sm:h-36" />
+      {/* Decorative backdrop: hidden from assistive tech, the pointer and text selection. */}
+      <Skyline className="pointer-events-none absolute right-4 bottom-0 -z-10 h-24 w-auto text-black/40 select-none sm:h-36" />
       <p
         aria-hidden="true"
         className={cn(
           displayTitle,
-          'absolute -bottom-3 left-4 -z-10 text-5xl font-black whitespace-nowrap text-white/5 sm:text-6xl'
+          'pointer-events-none absolute -bottom-3 left-4 -z-10 text-5xl font-black whitespace-nowrap text-white/5 select-none sm:text-6xl'
         )}
       >
         Albert Park Albert Park Albert Park

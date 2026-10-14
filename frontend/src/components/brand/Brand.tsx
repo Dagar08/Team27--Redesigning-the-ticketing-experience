@@ -15,7 +15,7 @@ export function GrandPrixBadge({ className }: { className?: string }) {
     <div className={cn('flex items-center gap-3', className)}>
       <span
         aria-hidden="true"
-        className="font-display border-gp-red-500 grid size-11 shrink-0 place-items-center rounded-full border-2 text-lg font-black text-white italic"
+        className="font-display border-gp-red-500 grid size-11 shrink-0 place-items-center rounded-full border-2 text-lg font-black text-white italic select-none"
       >
         N
       </span>
@@ -33,7 +33,7 @@ export function GrandPrixBadge({ className }: { className?: string }) {
 /** Decorative "GP.01 // MEL" race tag from the header of the mockups. */
 export function RaceTag({ className }: { className?: string }) {
   return (
-    <div aria-hidden="true" className={cn('flex items-center gap-2', className)}>
+    <div aria-hidden="true" className={cn('flex items-center gap-2 select-none', className)}>
       <span className="bg-gp-red-500 h-1.5 w-8 rounded-full" />
       <span className="bg-gp-red-500 h-1.5 w-2 rounded-full" />
       <span className="font-display text-xs font-extrabold tracking-wide text-white italic">
