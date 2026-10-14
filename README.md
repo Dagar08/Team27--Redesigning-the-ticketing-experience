@@ -131,14 +131,21 @@ Security is enforced in independent layers — Claude Code guard hooks, HTTP har
 
 ### Dependency audit
 
-The workspace pins Next.js and `eslint-config-next` to 16.3.6 and applies patched
+The workspace pins Next.js and `eslint-config-next` to 16.3.8 and applies patched
 transitive dependencies through `overrides` in `pnpm-workspace.yaml`, including
-`js-yaml`, `nanoid`, `postcss`, `sharp`, `brace-expansion` and `@grpc/grpc-js`.
+`js-yaml`, `nanoid`, `postcss`, `sharp`, `brace-expansion`, `@grpc/grpc-js`,
+`@fastify/busboy`, `source-map-js` and `proxy-addr`. Vitest uses a scoped Tinypool
+2.1.2 override; its Node 20+ requirement fits this workspace's Node 22+ baseline.
+Both test pools (forks and threads) were verified after this update.
 Keep the lockfile in sync when changing these overrides.
 
-The T15 check on 2 October 2026 passed `pnpm audit --audit-level=high` with no high
-or critical findings. Nine moderate findings remain. CI runs the same audit so new
-high/critical advisories block a release.
+The S3W1 audit on 11 October 2026 found one high and nine moderate findings, with
+no critical findings after applying the available patches. The remaining high
+finding is [braces GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm),
+through the development-only ESLint dependency chain. The latest published braces
+version is still 3.0.3; the advisory reports no published fix. CI's
+`pnpm audit --audit-level=high` remains blocked. Recheck the registry and update the
+lockfile when a patched release becomes available; the audit threshold is unchanged.
 
 ## Git Workflow
 

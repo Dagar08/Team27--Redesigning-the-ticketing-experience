@@ -16,7 +16,7 @@ overrides:
   # version too. postcss 8.x is backward-compatible within the major.
   postcss: "^8.5.18"
   # next also bundles an old sharp (image optimization) — force the patched line.
-  sharp: "^0.35.4"
+  sharp: "^0.35.5"
   # Patch transitive js-yaml and nanoid findings; see README.md § Security.
   js-yaml: "^4.3.2"
   nanoid: "^3.3.18"
@@ -25,6 +25,12 @@ overrides:
   "brace-expansion@>=2 <3": "^2.1.6"
   "brace-expansion@>=4 <6": "^5.0.11"
   "@grpc/grpc-js": "^1.14.5"
+  # Patch newly disclosed transitive audit findings within their existing major.
+  "@fastify/busboy": "^3.2.1"
+  "source-map-js": "^1.2.2"
+  "proxy-addr": "^2.0.8"
+  # Tinypool 2 drops Node 18; this workspace and CI require Node 22+.
+  "vitest>tinypool": "2.1.2"
 
 allowBuilds:
   "@firebase/util": true

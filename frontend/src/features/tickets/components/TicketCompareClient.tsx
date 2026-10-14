@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useTicketExplorer } from './TicketExplorerProvider'
 import { ticketButtonClassName } from './TicketElements'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { CircuitMap } from './CircuitMap'
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat('en-AU', {
@@ -20,17 +21,11 @@ function valuesDiffer(values: string[]) {
 export function TicketCompareClient() {
   const { selectedTickets, removeTicket } = useTicketExplorer()
 
-  const priceDiffers = valuesDiffer(
-    selectedTickets.map((ticket) => String(ticket.priceAud))
-  )
+  const priceDiffers = valuesDiffer(selectedTickets.map((ticket) => String(ticket.priceAud)))
 
-  const daysDiffers = valuesDiffer(
-    selectedTickets.map((ticket) => ticket.daysCovered.join(', '))
-  )
+  const daysDiffers = valuesDiffer(selectedTickets.map((ticket) => ticket.daysCovered.join(', ')))
 
-  const zoneDiffers = valuesDiffer(
-    selectedTickets.map((ticket) => ticket.zone)
-  )
+  const zoneDiffers = valuesDiffer(selectedTickets.map((ticket) => ticket.zone))
 
   const viewDiffers = valuesDiffer(
     selectedTickets.map((ticket) => ticket.viewDescription || 'Not specified')
@@ -84,12 +79,10 @@ export function TicketCompareClient() {
       />
 
       <div className="overflow-x-auto rounded-xl border border-white/10">
-        <table className="min-w-[800px] w-full border-collapse bg-asphalt-900">
+        <table className="bg-asphalt-900 w-full min-w-[800px] border-collapse">
           <thead>
             <tr className="border-b border-white/10">
-              <th className="w-40 p-4 text-left text-sm font-semibold text-zinc-400">
-                Feature
-              </th>
+              <th className="w-40 p-4 text-left text-sm font-semibold text-zinc-400">Feature</th>
 
               {selectedTickets.map((ticket) => (
                 <th
@@ -97,15 +90,10 @@ export function TicketCompareClient() {
                   className="min-w-56 border-l border-white/10 p-4 text-left align-top"
                 >
                   <div className="space-y-3">
-                    <h2 className="text-base font-semibold text-white">
-                      {ticket.name}
-                    </h2>
+                    <h2 className="text-base font-semibold text-white">{ticket.name}</h2>
 
                     <p className="text-sm text-zinc-400">
-                      Zone:{' '}
-                      <span className="font-medium text-white">
-                        {ticket.zone}
-                      </span>
+                      Zone: <span className="font-medium text-white">{ticket.zone}</span>
                     </p>
 
                     <button
@@ -123,71 +111,51 @@ export function TicketCompareClient() {
           </thead>
 
           <tbody>
-            <tr
-              className={`border-b border-white/10 ${
-                priceDiffers ? 'bg-gp-gold-500/10' : ''
-              }`}
-            >
-              <th className="p-4 text-left text-sm font-medium text-zinc-400">
-                Price
+            <tr className="border-b border-white/10">
+              <th scope="row" className="p-4 text-left align-top text-sm font-medium text-zinc-400">
+                Circuit map
               </th>
+              {selectedTickets.map((ticket) => (
+                <td key={ticket.id} className="border-l border-white/10 p-4 align-top">
+                  <CircuitMap zone={ticket.zone} label={`Circuit map for ${ticket.name}`} />
+                </td>
+              ))}
+            </tr>
+            <tr className={`border-b border-white/10 ${priceDiffers ? 'bg-gp-gold-500/10' : ''}`}>
+              <th className="p-4 text-left text-sm font-medium text-zinc-400">Price</th>
 
               {selectedTickets.map((ticket) => (
                 <td
                   key={ticket.id}
-                  className="border-l border-white/10 p-4 font-semibold text-gp-green-400"
+                  className="text-gp-green-400 border-l border-white/10 p-4 font-semibold"
                 >
                   {formatPrice(ticket.priceAud)}
                 </td>
               ))}
             </tr>
 
-            <tr
-              className={`border-b border-white/10 ${
-                daysDiffers ? 'bg-gp-gold-500/10' : ''
-              }`}
-            >
-              <th className="p-4 text-left text-sm font-medium text-zinc-400">
-                Days
-              </th>
+            <tr className={`border-b border-white/10 ${daysDiffers ? 'bg-gp-gold-500/10' : ''}`}>
+              <th className="p-4 text-left text-sm font-medium text-zinc-400">Days</th>
 
               {selectedTickets.map((ticket) => (
-                <td
-                  key={ticket.id}
-                  className="border-l border-white/10 p-4 text-sm text-white"
-                >
+                <td key={ticket.id} className="border-l border-white/10 p-4 text-sm text-white">
                   {ticket.daysCovered.join(', ')}
                 </td>
               ))}
             </tr>
 
-            <tr
-              className={`border-b border-white/10 ${
-                zoneDiffers ? 'bg-gp-gold-500/10' : ''
-              }`}
-            >
-              <th className="p-4 text-left text-sm font-medium text-zinc-400">
-                Zone
-              </th>
+            <tr className={`border-b border-white/10 ${zoneDiffers ? 'bg-gp-gold-500/10' : ''}`}>
+              <th className="p-4 text-left text-sm font-medium text-zinc-400">Zone</th>
 
               {selectedTickets.map((ticket) => (
-                <td
-                  key={ticket.id}
-                  className="border-l border-white/10 p-4 text-sm text-white"
-                >
+                <td key={ticket.id} className="border-l border-white/10 p-4 text-sm text-white">
                   {ticket.zone}
                 </td>
               ))}
             </tr>
 
-            <tr
-              className={`border-b border-white/10 ${
-                viewDiffers ? 'bg-gp-gold-500/10' : ''
-              }`}
-            >
-              <th className="p-4 text-left text-sm font-medium text-zinc-400">
-                View
-              </th>
+            <tr className={`border-b border-white/10 ${viewDiffers ? 'bg-gp-gold-500/10' : ''}`}>
+              <th className="p-4 text-left text-sm font-medium text-zinc-400">View</th>
 
               {selectedTickets.map((ticket) => (
                 <td
@@ -200,19 +168,14 @@ export function TicketCompareClient() {
             </tr>
 
             <tr
-              className={`border-b border-white/10 ${
-                includesDiffers ? 'bg-gp-gold-500/10' : ''
-              }`}
+              className={`border-b border-white/10 ${includesDiffers ? 'bg-gp-gold-500/10' : ''}`}
             >
               <th className="p-4 text-left align-top text-sm font-medium text-zinc-400">
                 Includes
               </th>
 
               {selectedTickets.map((ticket) => (
-                <td
-                  key={ticket.id}
-                  className="border-l border-white/10 p-4 align-top"
-                >
+                <td key={ticket.id} className="border-l border-white/10 p-4 align-top">
                   {ticket.includes?.length ? (
                     <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-300">
                       {ticket.includes.map((item) => (
@@ -220,9 +183,7 @@ export function TicketCompareClient() {
                       ))}
                     </ul>
                   ) : (
-                    <span className="text-sm text-zinc-500">
-                      Not specified
-                    </span>
+                    <span className="text-sm text-zinc-500">Not specified</span>
                   )}
                 </td>
               ))}
@@ -234,10 +195,7 @@ export function TicketCompareClient() {
               </th>
 
               {selectedTickets.map((ticket) => (
-                <td
-                  key={ticket.id}
-                  className="border-l border-white/10 p-4 align-top"
-                >
+                <td key={ticket.id} className="border-l border-white/10 p-4 align-top">
                   {ticket.excludes?.length ? (
                     <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-300">
                       {ticket.excludes.map((item) => (
@@ -245,9 +203,7 @@ export function TicketCompareClient() {
                       ))}
                     </ul>
                   ) : (
-                    <span className="text-sm text-zinc-500">
-                      Not specified
-                    </span>
+                    <span className="text-sm text-zinc-500">Not specified</span>
                   )}
                 </td>
               ))}
