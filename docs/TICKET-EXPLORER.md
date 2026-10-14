@@ -17,8 +17,9 @@ Open **Tickets** in the sidebar or **Browse tickets** on the dashboard.
   Refreshing or opening a valid URL loads the same modal after the catalog loads.
   An unknown ID shows a ticket-not-found modal. Closing a direct link returns to
   the browse URL. No separate detail page is needed.
-- The browse page and detail modal share one catalog request and handle loading, read failures with a
+- Browse, the detail modal and Compare share one catalog request and handle loading, read failures with a
   retry button, and empty or missing tickets. Optional fields have neutral fallbacks.
+  See [S3W2 error and empty-state hardening](S3W2-ERROR-HARDENING.md) for how the code maps to the S3W1 acceptance criteria (ERR, EMP, FS, A11Y).
 - Add/remove controls and **Your selection** share state between the browse list
   and detail modal. Each ticket type can appear once; removing or clearing selections
   updates the list and modal. Select up to three ticket types for comparison;
@@ -37,7 +38,7 @@ users need the `ticketType` read rule; all client ticket writes remain denied.
 
 The catalog uses `firebase/firestore/lite` for one-off REST reads. This avoids the
 full SDK watch stream's `ca9` / `b815` failed-queue state. Retry starts a fresh
-request; requests time out after 15 seconds and late results are ignored. Reload
+request; requests time out after 10 seconds (ERR-01, FS-02) and late results are ignored. Reload
 the explorer to pick up catalog changes made while it is open.
 
 The current dark surfaces and green accents are retained. The supplied mockups are
