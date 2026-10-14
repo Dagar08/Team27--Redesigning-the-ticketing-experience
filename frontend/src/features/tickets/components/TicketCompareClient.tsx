@@ -1,9 +1,12 @@
 'use client'
 
 import Link from 'next/link'
+import { Scale } from 'lucide-react'
 import { useTicketExplorer } from './TicketExplorerProvider'
-import { ticketButtonClassName } from './TicketElements'
+import { TicketLoadError, TicketLoading, ticketButtonClassName } from './TicketElements'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { useRetryFocus } from '../hooks/useRetryFocus'
+import { EmptyState } from '@/components/shared/EmptyState'
 import { CircuitMap } from './CircuitMap'
 
 function formatPrice(price: number) {
@@ -19,7 +22,8 @@ function valuesDiffer(values: string[]) {
 }
 
 export function TicketCompareClient() {
-  const { selectedTickets, removeTicket } = useTicketExplorer()
+  const { selectedTickets, removeTicket, loading, error, retry } = useTicketExplorer()
+  const { handleRetry, retryRef, resultsRef } = useRetryFocus(loading, error, retry)
 
   const priceDiffers = valuesDiffer(selectedTickets.map((ticket) => String(ticket.priceAud)))
 
@@ -39,7 +43,7 @@ export function TicketCompareClient() {
     selectedTickets.map((ticket) => (ticket.excludes ?? []).join('|'))
   )
 
-  if (selectedTickets.length < 2) {
+  if (loading || error || selectedTickets.length < 2) {
     return (
       <div className="space-y-6 text-white">
         <Link href="/tickets" className={ticketButtonClassName}>
@@ -51,18 +55,40 @@ export function TicketCompareClient() {
           description="Select at least two tickets to compare them side by side."
         />
 
-        <div className="bg-asphalt-900 rounded-xl border border-white/10 p-6">
-          <p className="text-sm text-zinc-400">
-            You need to select at least two ticket types before comparing.
-          </p>
-
-          <Link
-            href="/tickets"
-            className="bg-gp-green-500 text-asphalt-950 hover:bg-gp-green-400 mt-4 inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-colors"
+        {loading ? (
+          <TicketLoading />
+        ) : error ? (
+          <TicketLoadError retry={handleRetry} retryRef={retryRef} />
+        ) : (
+          <div
+            ref={resultsRef}
+            tabIndex={-1}
+            className="bg-asphalt-900 focus-visible:outline-gp-green-400 rounded-xl border border-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
           >
-            Browse tickets
-          </Link>
-        </div>
+            <EmptyState
+              icon={Scale}
+              // EMP-04 and EMP-05 wording.
+              title={
+                selectedTickets.length === 0
+                  ? 'Select 2 or 3 tickets to compare'
+                  : 'Add at least one more ticket to compare'
+              }
+              description={
+                selectedTickets.length === 1
+                  ? `Selected: ${selectedTickets[0]?.name}. Selections reset when the page reloads.`
+                  : 'Selections reset when the page reloads.'
+              }
+              action={
+                <Link
+                  href="/tickets"
+                  className="bg-gp-green-500 text-asphalt-950 hover:bg-gp-green-400 focus-visible:outline-gp-green-400 inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+                >
+                  Browse tickets
+                </Link>
+              }
+            />
+          </div>
+        )}
       </div>
     )
   }
@@ -78,7 +104,11 @@ export function TicketCompareClient() {
         description="Compare your selected Australian Grand Prix ticket options side by side."
       />
 
-      <div className="overflow-x-auto rounded-xl border border-white/10">
+      <div
+        ref={resultsRef}
+        tabIndex={-1}
+        className="focus-visible:outline-gp-green-400 overflow-x-auto rounded-xl border border-white/10 focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
         <table className="bg-asphalt-900 w-full min-w-[800px] border-collapse">
           <thead>
             <tr className="border-b border-white/10">
@@ -93,7 +123,10 @@ export function TicketCompareClient() {
                     <h2 className="text-base font-semibold text-white">{ticket.name}</h2>
 
                     <p className="text-sm text-zinc-400">
-                      Zone: <span className="font-medium text-white">{ticket.zone}</span>
+                      Zone:{' '}
+                      <span className="font-medium text-white">
+                        {ticket.zone.trim() || 'Not specified'}
+                      </span>
                     </p>
 
                     <button
@@ -139,7 +172,7 @@ export function TicketCompareClient() {
 
               {selectedTickets.map((ticket) => (
                 <td key={ticket.id} className="border-l border-white/10 p-4 text-sm text-white">
-                  {ticket.daysCovered.join(', ')}
+                  {ticket.daysCovered.join(', ') || 'Not specified'}
                 </td>
               ))}
             </tr>
@@ -149,7 +182,7 @@ export function TicketCompareClient() {
 
               {selectedTickets.map((ticket) => (
                 <td key={ticket.id} className="border-l border-white/10 p-4 text-sm text-white">
-                  {ticket.zone}
+                  {ticket.zone.trim() || 'Not specified'}
                 </td>
               ))}
             </tr>
@@ -178,8 +211,8 @@ export function TicketCompareClient() {
                 <td key={ticket.id} className="border-l border-white/10 p-4 align-top">
                   {ticket.includes?.length ? (
                     <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-300">
-                      {ticket.includes.map((item) => (
-                        <li key={item}>{item}</li>
+                      {ticket.includes.map((item, index) => (
+                        <li key={`${index}-${item}`}>{item}</li>
                       ))}
                     </ul>
                   ) : (
@@ -198,8 +231,8 @@ export function TicketCompareClient() {
                 <td key={ticket.id} className="border-l border-white/10 p-4 align-top">
                   {ticket.excludes?.length ? (
                     <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-300">
-                      {ticket.excludes.map((item) => (
-                        <li key={item}>{item}</li>
+                      {ticket.excludes.map((item, index) => (
+                        <li key={`${index}-${item}`}>{item}</li>
                       ))}
                     </ul>
                   ) : (
