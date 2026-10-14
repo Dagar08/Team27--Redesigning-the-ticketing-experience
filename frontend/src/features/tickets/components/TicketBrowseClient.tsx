@@ -15,12 +15,14 @@ import {
 import { TicketSelection, TicketSelectionButton } from './TicketSelection'
 import { TicketDetailsDialog } from './TicketDetailsDialog'
 import { useTicketDetails } from '../hooks/useTicketDetails'
+import { useRetryFocus } from '../hooks/useRetryFocus'
 import { CircuitMap } from './CircuitMap'
 
 export function TicketBrowseClient() {
   const { tickets, loading, error, retry } = useTicketExplorer()
   const { activeTicketId, openTicketDetails, closeTicketDetails } = useTicketDetails()
   const activeTicket = tickets.find((ticket) => ticket.id === activeTicketId)
+  const { handleRetry, retryRef, resultsRef } = useRetryFocus(loading, error, retry)
 
   return (
     <div className="space-y-6 text-white">
@@ -34,18 +36,25 @@ export function TicketBrowseClient() {
       {loading ? (
         <TicketLoading />
       ) : error ? (
-        <TicketLoadError
-          message="We couldn't load tickets right now. Please try again."
-          retry={retry}
-        />
+        <TicketLoadError retry={handleRetry} retryRef={retryRef} />
       ) : (
-        <div className="grid gap-6 xl:grid-cols-3">
+        <div
+          ref={resultsRef}
+          tabIndex={-1}
+          aria-label="Ticket results"
+          className="focus-visible:outline-gp-green-400 grid gap-6 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 xl:grid-cols-3"
+        >
           <div className="xl:col-span-2">
             {tickets.length === 0 ? (
               <EmptyState
                 icon={Ticket}
                 title="No tickets available"
                 description="Please check back soon for available ticket types."
+                action={
+                  <button type="button" onClick={retry} className={ticketButtonClassName}>
+                    Check again
+                  </button>
+                }
               />
             ) : (
               <ul aria-label="Available ticket types" className="grid gap-6 md:grid-cols-2">

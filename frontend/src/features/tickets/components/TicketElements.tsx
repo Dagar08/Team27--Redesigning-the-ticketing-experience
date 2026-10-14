@@ -1,3 +1,5 @@
+import type { Ref } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import type { TicketType } from '@/types/firestore'
 import { TicketZoneIndicator } from './TicketZoneIndicator'
 
@@ -71,13 +73,36 @@ export function TicketLoading() {
   )
 }
 
-export function TicketLoadError({ message, retry }: { message: string; retry: () => void }) {
+export const TICKET_LOAD_ERROR_MESSAGE = "We couldn't load tickets right now. Please try again."
+export const TICKET_OFFLINE_MESSAGE = "You're offline. Check your connection and try again."
+
+/**
+ * ERR-01, FS-01 to FS-03: one plain-language message for every failed read
+ * (network, server, permissions, timeout). Technical detail stays in the console.
+ */
+export function describeTicketLoadError() {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return TICKET_OFFLINE_MESSAGE
+  }
+  return TICKET_LOAD_ERROR_MESSAGE
+}
+
+export function TicketLoadError({
+  retry,
+  retryRef,
+}: {
+  retry: () => void
+  retryRef?: Ref<HTMLButtonElement>
+}) {
   return (
-    <div className="bg-asphalt-900 space-y-4 rounded-xl border border-white/10 p-6">
-      <p role="alert" className="text-sm text-red-400">
-        {message}
-      </p>
-      <button type="button" onClick={retry} className={ticketButtonClassName}>
+    <div className="bg-asphalt-900 space-y-4 rounded-xl border border-red-400/30 p-6">
+      <div className="flex items-start gap-3">
+        <AlertTriangle aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-red-400" />
+        <p role="alert" className="text-sm text-red-300">
+          {describeTicketLoadError()}
+        </p>
+      </div>
+      <button ref={retryRef} type="button" onClick={retry} className={ticketButtonClassName}>
         Retry
       </button>
     </div>
