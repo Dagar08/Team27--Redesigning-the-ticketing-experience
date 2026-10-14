@@ -267,7 +267,12 @@ describe('circuit maps in ticket exploration', () => {
     render(<TicketCompareClient />)
 
     const table = screen.getByRole('table')
-    const row = within(table).getByText('Circuit map', { selector: 'th' }).closest('tr')!
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((header) => within(header).getByRole('heading').textContent)
+    ).toEqual(selected.map((ticket) => ticket.name))
+    const row = within(table).getAllByRole('figure')[0]!.closest('tr')!
     const columns = within(row).getAllByRole('cell')
     expect(columns).toHaveLength(selected.length)
     expect(within(row).getAllByRole('figure')).toHaveLength(selected.length)

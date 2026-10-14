@@ -2,6 +2,7 @@
 
 import { useId, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { focusRing } from '@/lib/styles'
 import { getCircuitZone } from '../data/circuitZones'
 
 export function CircuitMap({
@@ -38,8 +39,8 @@ export function CircuitMap({
   return (
     <figure aria-label={label} className="min-w-0 space-y-3 font-normal">
       {imageFailed ? (
-        <div className="bg-asphalt-800 flex aspect-[1200/729] items-center justify-center rounded-lg border border-white/10 p-4">
-          <p className="text-sm text-zinc-400">Circuit map image unavailable.</p>
+        <div className="bg-asphalt-800 border-asphalt-600 flex aspect-[1200/729] items-center justify-center rounded-xl border p-4">
+          <p className="text-sm text-zinc-300">Circuit map image unavailable.</p>
         </div>
       ) : (
         <svg
@@ -47,7 +48,7 @@ export function CircuitMap({
           viewBox="0 0 1200 729"
           role="img"
           aria-labelledby={`${titleId} ${descriptionId}`}
-          className="block h-auto w-full overflow-hidden rounded-lg bg-white"
+          className="block h-auto w-full overflow-hidden rounded-xl bg-white"
         >
           <title id={titleId}>Albert Park circuit map</title>
           <desc id={descriptionId}>
@@ -71,9 +72,10 @@ export function CircuitMap({
               onMouseLeave={() => setHovered(false)}
               className={cn(
                 'cursor-pointer transition-colors motion-reduce:transition-none',
+                // Red reads at 5.0:1 on the white map; emphasis also changes width, dash and fill.
                 emphasized
-                  ? 'fill-gp-gold-500/20 stroke-gp-gold-500'
-                  : 'stroke-gp-green-600 fill-transparent'
+                  ? 'fill-gp-red-500/25 stroke-gp-red-500'
+                  : 'stroke-gp-red-500 fill-transparent'
               )}
               strokeWidth={emphasized ? 10 : 6}
               strokeDasharray={emphasized ? '14 8' : undefined}
@@ -96,10 +98,10 @@ export function CircuitMap({
 
       {!overview && (
         <figcaption className="space-y-2 text-sm">
-          <p role="status" className="font-medium text-white">
+          <p role="status" className="font-semibold text-white">
             {emphasized ? 'Highlighted zone' : 'Ticket zone'}: {displayZone}
           </p>
-          <p id={zoneDescriptionId} className="text-zinc-400">
+          <p id={zoneDescriptionId} className="text-zinc-300">
             {circuitZone?.description ||
               (zone?.trim() ? 'Map location unavailable for this zone.' : 'Zone not specified.')}
           </p>
@@ -119,7 +121,10 @@ export function CircuitMap({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           onClick={() => setPinned((current) => !current)}
-          className="border-gp-green-500/40 text-gp-green-400 hover:border-gp-gold-400 hover:text-gp-gold-400 focus-visible:outline-gp-gold-400 inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+          className={cn(
+            'border-gp-red-500 hover:bg-gp-red-500/15 aria-pressed:bg-gp-red-500 inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border px-4 py-2 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none',
+            focusRing
+          )}
         >
           {pinned ? 'Unpin highlight' : 'Highlight zone'}
         </button>

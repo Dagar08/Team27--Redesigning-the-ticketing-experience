@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TicketType } from '@/types/firestore'
@@ -244,8 +244,7 @@ describe('FS-06 and empty states: missing and malformed data', () => {
     await act(async () => requests[0]!.resolve(snapshot(tickets)))
 
     const dialog = screen.getByRole('dialog', { name: firstTicket.name })
-    const image = within(dialog).getByAltText('Albert Park Grand Prix Circuit map')
-    await act(async () => image.dispatchEvent(new Event('error')))
+    fireEvent.error(dialog.querySelector('image')!)
     expect(within(dialog).getByText('Circuit map image unavailable.')).toBeInTheDocument()
   })
 })
