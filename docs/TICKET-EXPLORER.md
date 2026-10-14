@@ -1,13 +1,14 @@
 # Ticket explorer
 
-Open **Tickets** in the sidebar or **Browse tickets** on the dashboard.
+Open **Tickets** in the sidebar (or the mobile tab bar) or **View event** on the dashboard.
 
 - `/tickets` lists the signed-in user's readable `ticketType` documents from Firestore.
 - Ticket types are ordered by price ascending, then name for tied prices.
 - Every browse card includes the supplied Albert Park circuit schematic with its
   stored zone highlighted. Compare shows the same map in each ticket column.
   Hover the zone or its **Highlight zone** button for emphasis. Tab to the button
-  for the same emphasis and a visible focus outline; Enter or Space pins/unpins it.
+  for the same emphasis and a visible focus outline; Enter, Space, a click or a tap pins/unpins it.
+  Once unpinned, the highlight clears as soon as the pointer leaves the map.
   Map interactions do not add, remove, or change a ticket selection.
 - Each **View details** button opens a modal with the price in AUD, days covered,
   a zone indicator from the existing `zone` field, view description, included items,
@@ -20,10 +21,11 @@ Open **Tickets** in the sidebar or **Browse tickets** on the dashboard.
 - Browse, the detail modal and Compare share one catalog request and handle loading, read failures with a
   retry button, and empty or missing tickets. Optional fields have neutral fallbacks.
   See [S3W2 error and empty-state hardening](S3W2-ERROR-HARDENING.md) for how the code maps to the S3W1 acceptance criteria (ERR, EMP, FS, A11Y).
-- Add/remove controls and **Your selection** share state between the browse list
-  and detail modal. Each ticket type can appear once; removing or clearing selections
+- The red **Compare** checkbox (on each card and in the detail modal) and **Your selection**
+  share state between the browse list and detail modal. Each ticket type can appear once; removing or clearing selections
   updates the list and modal. Select up to three ticket types for comparison;
-  further add controls are visibly disabled until a ticket is removed. Selection
+  further Compare checkboxes are disabled, with "Selection limit reached", until a ticket is removed.
+  Every compared ticket's card is outlined in red on Browse until it is unticked or removed. Selection
   is in memory and resets on a full reload, leaving
   the ticket explorer, or changing users. It does not reserve or purchase tickets.
 
@@ -41,9 +43,9 @@ full SDK watch stream's `ca9` / `b815` failed-queue state. Retry starts a fresh
 request; requests time out after 10 seconds (ERR-01, FS-02) and late results are ignored. Reload
 the explorer to pick up catalog changes made while it is open.
 
-The current dark surfaces and green accents are retained. The supplied mockups are
-a reference for future visual work; checkout, quantities, and upgrades are outside
-this browse/detail implementation.
+Screens follow the approved red-and-black mockups; see the [design system](DESIGN.md) and the
+[S3W2 mockup restyle](S3W2-MOCKUP-RESTYLE.md). Checkout, quantities and add-to-cart remain
+outside this browse/detail implementation.
 
 Run `pnpm run test:component` for the mocked Firestore interaction tests, including
 all six seed records, selection changes between the list and modal, read retries, missing data,

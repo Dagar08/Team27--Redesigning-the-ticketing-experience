@@ -47,14 +47,14 @@ text" rule and never show the error message or digest.
 | FS-01, FS-02, FS-06 | ✅     | See above                                                                                                                                                 |
 | FS-03               | ✅     | The only reads are the initial load and Retry                                                                                                             |
 | FS-04               | ⚠️     | Fallbacks read "Circuit map image unavailable." / "Map location unavailable for this zone.", not "Zone map not available"                                 |
-| A11Y-01             | ⚠️     | Browse/Compare map descriptions name the zone; the detail modal image alt does not                                                                        |
+| A11Y-01             | ✅     | Browse, Compare and the detail modal all use `CircuitMap`, whose description names the zone (mockup restyle)                                              |
 | A11Y-02, 07, 10     | ✅     | One h1, headings/lists, real table, keyboard, named controls                                                                                              |
-| A11Y-03             | ❌     | Compare differences are a gold row tint plus a footnote; rows have no text or icon marker                                                                 |
-| A11Y-04             | ❌     | `text-zinc-500` is 3.7:1 (3.0:1 on highlighted rows): `PageHeader` and `EmptyState` descriptions, Compare "Not specified" and footnote                    |
-| A11Y-05             | ⚠️     | Focus outline 6.6:1; secondary button borders (`white/15`) are 1.6:1                                                                                      |
-| A11Y-06             | ✅     | Verified in S3W1 browser checks; not re-run                                                                                                               |
+| A11Y-03             | ✅     | Differing Compare rows have a tint **and** a visible "Differs" label (mockup restyle)                                                                     |
+| A11Y-04             | ✅     | No `zinc-500` text remains; small red text uses `gp-red-400` (5.3:1 or more). See [Contrast](DESIGN.md#contrast)                                          |
+| A11Y-05             | ✅     | Card, panel and secondary-button borders use `asphalt-600` (3.1:1); red outlines 4.1:1; white focus outline 20:1                                          |
+| A11Y-06             | ✅     | Re-checked at 390px and 1440px in the mockup restyle; Compare scrolls inside its own area                                                                 |
 | A11Y-08             | ⚠️     | Modal focus and Retry are correct; removing a Compare column drops focus to the page                                                                      |
-| A11Y-09, 11         | ✅     | 2px outlines; errors are text plus an icon                                                                                                                |
+| A11Y-09, 11         | ✅     | 2px white focus outlines; errors are plain-text messages                                                                                                  |
 | A11Y-12             | ⚠️     | Loading, error and selection count are announced; empty states and Compare removals are not                                                               |
 | A11Y-13             | ⚠️     | `lang="en"`; Compare title matches; Browse title is "Browse tickets", not "Tickets"                                                                       |
 | 44px team standard  | ✅     | Ticket, map and error controls are at least 44px                                                                                                          |
