@@ -1,37 +1,88 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
+/* The app is dark-only, matching the approved mockups. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050607;
+  --foreground: #f5f5f5;
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-@theme {
-  /* Australian Grand Prix — Albert Park */
-  --color-gp-green-400: #22b455;
-  --color-gp-green-500: #009b3a;
-  --color-gp-green-600: #007c2e;
-  --color-gp-gold-400:  #ffd84d;
-  --color-gp-gold-500:  #ffcd00;
-  --color-asphalt-800:  #26262b;
-  --color-asphalt-900:  #17171a;
-  --color-asphalt-950:  #0c0c0e;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), var(--font-inter), ui-sans-serif, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  /*
+   * Australian Grand Prix palette, sampled from the approved UI mockups
+   * (docs/sprint-2-ui, docs/UI Mockup Revised Dashboard *). Contrast ratios
+   * follow docs/sprint-3-ui/week-1/Colour Contrast Audit.docx; see docs/DESIGN.md.
+   */
+  --color-gp-red-400: #ff3b30; /* small red text: at least 5.3:1 on every surface */
+  --color-gp-red-500: #e10600; /* fills (white text 5.0:1), borders, icons, large text */
+  --color-gp-red-600: #b80500; /* hover and pressed fills */
+  --color-gp-red-950: #22090b; /* active navigation and tinted panels */
+
+  --color-asphalt-600: #5c5d61; /* component borders: 3.1:1 against the page */
+  --color-asphalt-800: #111215; /* raised tiles and inputs */
+  --color-asphalt-900: #08090b; /* cards, panels and the sidebar */
+  --color-asphalt-950: #050607; /* page */
+
+  --animate-shimmer: shimmer 1.8s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0% {
+      background-position: 150% 0;
+    }
+    100% {
+      background-position: -50% 0;
+    }
   }
+}
+
+/* Loading placeholders: a diagonal glint that sweeps across the block. */
+@utility skeleton {
+  background-color: var(--color-asphalt-800);
+  background-image: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.12) 50%,
+    transparent 70%
+  );
+  background-size: 250% 100%;
+}
+
+/* Red event banner behind "Australian Grand Prix" heroes. */
+@utility bg-race-hero {
+  background-image:
+    radial-gradient(120% 140% at 0% 0%, rgb(225 6 0 / 0.55), transparent 60%),
+    linear-gradient(100deg, #7c0f0e 0%, #3a0a0a 50%, #110708 100%);
+}
+
+/* Diagonal red light streaks behind the landing and sign-in screens. */
+@utility bg-race-stripes {
+  background-image:
+    linear-gradient(
+      115deg,
+      transparent 52%,
+      rgb(225 6 0 / 0.35) 52%,
+      rgb(225 6 0 / 0.35) 56%,
+      transparent 56%,
+      transparent 62%,
+      rgb(225 6 0 / 0.2) 62%,
+      rgb(225 6 0 / 0.2) 70%,
+      transparent 70%,
+      transparent 76%,
+      rgb(225 6 0 / 0.12) 76%,
+      rgb(225 6 0 / 0.12) 79%,
+      transparent 79%
+    ),
+    radial-gradient(90% 80% at 85% 10%, rgb(225 6 0 / 0.25), transparent 70%);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

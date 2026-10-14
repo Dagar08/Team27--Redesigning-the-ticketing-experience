@@ -1,16 +1,20 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Archivo, Inter } from 'next/font/google'
 import { Providers } from '@/providers'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+// UI text: navigation, tables, forms and buttons.
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+// Display text: wide, heavy and often italic headings, as in the mockups.
+const archivo = Archivo({
+  variable: '--font-archivo',
   subsets: ['latin'],
+  style: ['normal', 'italic'],
+  axes: ['wdth'],
 })
 
 export const metadata: Metadata = {
@@ -23,8 +27,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
+    <html lang="en" className={`${inter.variable} ${archivo.variable} h-full antialiased`}>
+      <body className="bg-asphalt-950 text-foreground flex min-h-full flex-col font-sans">
         <Providers>{children}</Providers>
       </body>
     </html>
