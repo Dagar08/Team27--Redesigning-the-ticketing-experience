@@ -20,7 +20,7 @@ New to the repo? Read `docs/GUIDE.md` — it walks through building a feature en
 |-------|-----------|
 | Frontend framework | Next.js 16 (App Router, React 19) |
 | Language | TypeScript 5 — strict mode |
-| Styling | Tailwind CSS v4 (CSS-first config, no `tailwind.config.js`) |
+| Styling | Tailwind CSS v4 (CSS-first config, no `tailwind.config.js`); dark-only red/black mockup design system in `docs/DESIGN.md` |
 | UI components | Raw Tailwind (shadcn can be added per project) |
 | Backend | Firebase Cloud Functions v2 (Express fat-lambda) |
 | Database | Firestore |
@@ -69,8 +69,10 @@ Everything a feature build needs already exists below. **Do not survey the codeb
 | `frontend/src/types/firestore.ts` | `UserProfile` — add new collection interfaces here (always with `_schemaVersion: 1`) | Collection types |
 | `frontend/src/lib/validations/` | `loginSchema`, `signupSchema`, `registerSchema`, `resetPasswordSchema` (`auth.ts`) · `idSchema`, `paginationSchema` (`common.ts`) | Zod schemas — add feature schemas here or in the feature folder |
 | `frontend/src/lib/utils.ts` | `cn()`, `formatDate`, `formatDatetime`, `truncate` | Class merging, formatting |
-| `frontend/src/components/layout/` | `DashboardShell`, `Sidebar` (navItems array — add links here), `Navbar`, `PageHeader` | App shell |
-| `frontend/src/components/shared/` | `ErrorBoundary`, `LoadingSpinner`, `FullPageSpinner`, `EmptyState { title, description?, icon?, action? }`, `RouteError { error, retry, title?, description?, backHref?, backLabel? }` (fallback for `error.tsx`) | Loading/empty/error states |
+| `frontend/src/components/layout/` | `DashboardShell`, `Sidebar` + `MobileNav` (shared `navItems.ts` — add links here), `Navbar`, `PageHeader`, `BackLink` | App shell |
+| `frontend/src/components/brand/` | `Wordmark`, `GrandPrixBadge`, `RaceTag`, `TrackDivider`, `Skyline`, `CarMark`, `RaceHero` | Mockup brand marks and the red event banner |
+| `frontend/src/lib/styles.ts` | `displayTitle`, `displayItalic`, `displayBlock`, `buttonPrimary/Outline/Secondary`, `panel`, `textLink`, `inlineLink`, `eyebrow`, `fieldLabel/Input/Error`, `focusRing` | Shared class strings for the mockup design language (see `docs/DESIGN.md`) |
+| `frontend/src/components/shared/` | `ErrorBoundary`, `LoadingSpinner`, `FullPageSpinner`, `EmptyState { title, description?, icon?, action? }`, `RouteError { error, retry, title?, description?, backHref?, backLabel? }` (fallback for `error.tsx`), `Panel { title, action?, children }` | Loading/empty/error states, titled boxes |
 | `frontend/src/app/api/auth/session/route.ts` | POST (token → `__session` cookie), DELETE | Already wired — don't touch for features |
 
 ### Backend building blocks
