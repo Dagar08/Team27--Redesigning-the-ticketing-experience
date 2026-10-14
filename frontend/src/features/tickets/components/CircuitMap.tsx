@@ -4,9 +4,18 @@ import { useId, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { getCircuitZone } from '../data/circuitZones'
 
-export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; label?: string }) {
+export function CircuitMap({
+  zone,
+  label = 'Circuit map',
+  overview = false,
+}: {
+  zone?: string
+  label?: string
+  /** Show the whole circuit without ticket-zone details, e.g. on the dashboard. */
+  overview?: boolean
+}) {
   const id = useId()
-  const circuitZone = getCircuitZone(zone)
+  const circuitZone = overview ? undefined : getCircuitZone(zone)
   const displayZone = circuitZone?.label || zone?.trim() || 'Not specified'
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
@@ -42,9 +51,11 @@ export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; lab
         >
           <title id={titleId}>Albert Park circuit map</title>
           <desc id={descriptionId}>
-            {circuitZone
-              ? `Ticket zone: ${displayZone}. ${circuitZone.description}`
-              : 'Circuit overview. A map location is not specified for this ticket zone.'}
+            {overview
+              ? 'Circuit overview showing the Albert Park track layout and numbered turns.'
+              : circuitZone
+                ? `Ticket zone: ${displayZone}. ${circuitZone.description}`
+                : 'Circuit overview. A map location is not specified for this ticket zone.'}
           </desc>
           <image
             href="/maps/albert-park-circuit.png"
@@ -83,15 +94,17 @@ export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; lab
         </svg>
       )}
 
-      <figcaption className="space-y-2 text-sm">
-        <p role="status" className="font-medium text-white">
-          {emphasized ? 'Highlighted zone' : 'Ticket zone'}: {displayZone}
-        </p>
-        <p id={zoneDescriptionId} className="text-zinc-400">
-          {circuitZone?.description ||
-            (zone?.trim() ? 'Map location unavailable for this zone.' : 'Zone not specified.')}
-        </p>
-      </figcaption>
+      {!overview && (
+        <figcaption className="space-y-2 text-sm">
+          <p role="status" className="font-medium text-white">
+            {emphasized ? 'Highlighted zone' : 'Ticket zone'}: {displayZone}
+          </p>
+          <p id={zoneDescriptionId} className="text-zinc-400">
+            {circuitZone?.description ||
+              (zone?.trim() ? 'Map location unavailable for this zone.' : 'Zone not specified.')}
+          </p>
+        </figcaption>
+      )}
 
       {circuitZone && (
         <button
