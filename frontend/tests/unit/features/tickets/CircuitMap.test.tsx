@@ -133,9 +133,9 @@ describe('CircuitMap', () => {
     render(<CircuitMap zone="Pit Straight" />)
     const region = screen.getByRole('img').querySelector('[data-zone="pit-straight"]')!
 
-    fireEvent.mouseEnter(region)
+    fireEvent.pointerEnter(region)
     expect(screen.getByRole('status')).toHaveTextContent('Highlighted zone: Pit Straight')
-    fireEvent.mouseLeave(region)
+    fireEvent.pointerLeave(region)
     expect(screen.getByRole('status')).toHaveTextContent('Ticket zone: Pit Straight')
   })
 
@@ -160,6 +160,39 @@ describe('CircuitMap', () => {
     expect(button).toHaveAttribute('aria-pressed', 'false')
     await user.tab()
     expect(screen.getByRole('status')).toHaveTextContent('Ticket zone: Turn 11')
+  })
+
+  it('clears the highlight when the pointer leaves after unpinning with a click', async () => {
+    const user = userEvent.setup()
+    render(<CircuitMap zone="Turn 3" />)
+    const button = screen.getByRole('button', { name: 'Highlight Turn 3 on circuit map' })
+
+    await user.click(button)
+    expect(button).toHaveAttribute('aria-pressed', 'true')
+    await user.unhover(button)
+    expect(screen.getByRole('status')).toHaveTextContent('Highlighted zone: Turn 3')
+
+    await user.click(button)
+    expect(button).toHaveAttribute('aria-pressed', 'false')
+    // The click focused the button, but only keyboard focus emphasises the zone…
+    expect(button).toHaveFocus()
+    await user.unhover(button)
+    // …so moving off the map clears it without clicking elsewhere on the page.
+    expect(screen.getByRole('status')).toHaveTextContent('Ticket zone: Turn 3')
+  })
+
+  it('does not leave a hover highlight behind after a tap', async () => {
+    const user = userEvent.setup()
+    render(<CircuitMap zone="Turn 3" />)
+    const button = screen.getByRole('button', { name: 'Highlight Turn 3 on circuit map' })
+
+    await user.pointer({ keys: '[TouchA]', target: button })
+    expect(button).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent('Highlighted zone: Turn 3')
+
+    await user.pointer({ keys: '[TouchA]', target: button })
+    expect(button).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('status')).toHaveTextContent('Ticket zone: Turn 3')
   })
 
   it('keeps map instances and their accessible label IDs independent', async () => {

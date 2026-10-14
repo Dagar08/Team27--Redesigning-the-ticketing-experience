@@ -1,9 +1,14 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useId, useRef, useState, type PointerEvent } from 'react'
 import { cn } from '@/lib/utils'
 import { focusRing } from '@/lib/styles'
 import { getCircuitZone } from '../data/circuitZones'
+
+/** Touch has no hover, so a tap must not leave a "hover" behind that keeps the zone lit. */
+function canHover(event: PointerEvent) {
+  return event.pointerType !== 'touch'
+}
 
 export function CircuitMap({
   zone,
@@ -22,6 +27,9 @@ export function CircuitMap({
   const [focused, setFocused] = useState(false)
   const [pinned, setPinned] = useState(false)
   const [imageFailed, setImageFailed] = useState(false)
+  // True while a mouse press or tap is focusing the button. Only keyboard focus emphasises
+  // the zone; otherwise unpinning with a click would leave it lit until the page is clicked.
+  const pressing = useRef(false)
   // Associate interaction state with the zone so changing data cannot pin another zone.
   const [interactionZone, setInteractionZone] = useState(zone)
   if (interactionZone !== zone) {
@@ -35,6 +43,8 @@ export function CircuitMap({
   const descriptionId = `${id}-description`
   const zoneDescriptionId = `${id}-zone-description`
   const mapId = `${id}-map`
+  const showHover = (event: PointerEvent) => canHover(event) && setHovered(true)
+  const hideHover = (event: PointerEvent) => canHover(event) && setHovered(false)
 
   return (
     <figure aria-label={label} className="min-w-0 space-y-3 font-normal">
@@ -68,8 +78,8 @@ export function CircuitMap({
             <g
               aria-hidden="true"
               data-zone={circuitZone.id}
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
+              onPointerEnter={showHover}
+              onPointerLeave={hideHover}
               className={cn(
                 'cursor-pointer transition-colors motion-reduce:transition-none',
                 // Red reads at 5.0:1 on the white map; emphasis also changes width, dash and fill.
@@ -116,9 +126,22 @@ export function CircuitMap({
           aria-controls={imageFailed ? undefined : mapId}
           aria-pressed={pinned}
           disabled={imageFailed}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          onFocus={() => setFocused(true)}
+          onPointerEnter={showHover}
+          onPointerLeave={hideHover}
+          onPointerDown={() => {
+            pressing.current = true
+            // Using a pointer ends any keyboard-focus emphasis.
+            setFocused(false)
+          }}
+          onPointerUp={() => {
+            pressing.current = false
+          }}
+          onPointerCancel={() => {
+            pressing.current = false
+          }}
+          onFocus={() => {
+            if (!pressing.current) setFocused(true)
+          }}
           onBlur={() => setFocused(false)}
           onClick={() => setPinned((current) => !current)}
           className={cn(
