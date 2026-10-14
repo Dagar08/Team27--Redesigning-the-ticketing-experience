@@ -55,7 +55,7 @@ export function HeroVideo() {
         type="button"
         onClick={toggle}
         aria-label={playing ? 'Pause background video' : 'Play background video'}
-        className="bg-asphalt-950/70 focus-visible:outline-gp-green-500 absolute right-6 bottom-3 z-10 inline-flex size-11 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 sm:right-10"
+        className="bg-asphalt-950/70 absolute top-6 left-6 z-10 inline-flex size-11 items-center justify-center rounded-full border border-white/40 text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:top-10 sm:left-10"
       >
         {playing ? (
           <Pause aria-hidden="true" className="size-4" />
