@@ -38,13 +38,21 @@ function TicketBrowseCard({
   ticket: TicketType
   onViewDetails: (id: string) => void
 }) {
+  const { selectedTickets } = useTicketExplorer()
+  const selected = selectedTickets.some((item) => item.id === ticket.id)
+
   return (
     <article
+      data-selected={selected || undefined}
       className={cn(
         panel,
-        // Red only for keyboard focus inside the card: a mouse click also focuses buttons,
-        // and `focus-within` would keep the border red until the page was clicked.
-        'has-focus-visible:border-gp-red-500 flex h-full flex-col overflow-hidden transition-colors hover:border-zinc-400'
+        'flex h-full flex-col overflow-hidden transition-colors',
+        selected
+          ? // Compared tickets stay outlined in red; the ring thickens it without shifting layout.
+            'border-gp-red-500 ring-gp-red-500 ring-1'
+          : // Otherwise red only for keyboard focus inside the card: a mouse click also focuses
+            // buttons, and `focus-within` would keep the border red until the page was clicked.
+            'has-focus-visible:border-gp-red-500 hover:border-zinc-400'
       )}
     >
       {/* The heading comes first for screen readers; CSS order shows it under the map as in the mockup. */}

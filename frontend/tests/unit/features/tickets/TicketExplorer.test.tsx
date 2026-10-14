@@ -577,6 +577,36 @@ describe('ticket explorer', () => {
     expect(mocks.read).toHaveBeenCalledTimes(1)
   })
 
+  it('outlines every compared ticket card until it is unticked', async () => {
+    const user = userEvent.setup()
+
+    render(<Explorer />)
+
+    await publish()
+
+    const cardFor = (ticket: TicketType) =>
+      screen.getByRole('checkbox', { name: `Compare ${ticket.name}` }).closest('article')!
+
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${secondTicket.name}` }))
+
+    expect(cardFor(firstTicket)).toHaveAttribute('data-selected', 'true')
+    expect(cardFor(secondTicket)).toHaveAttribute('data-selected', 'true')
+    expect(cardFor(tickets[2]!)).not.toHaveAttribute('data-selected')
+
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
+
+    expect(cardFor(firstTicket)).not.toHaveAttribute('data-selected')
+    expect(cardFor(secondTicket)).toHaveAttribute('data-selected', 'true')
+
+    // Removing from the selection panel clears the outline too.
+    await user.click(
+      screen.getByRole('button', { name: `Remove ${secondTicket.name} from selection` })
+    )
+
+    expect(cardFor(secondTicket)).not.toHaveAttribute('data-selected')
+  })
+
   it('ignores duplicate additions, unknown tickets, and repeated removals', async () => {
     function SelectionActions() {
       const { addTicket, removeTicket } = useTicketExplorer()
