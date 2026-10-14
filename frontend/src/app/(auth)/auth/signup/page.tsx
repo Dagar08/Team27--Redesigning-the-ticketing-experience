@@ -8,7 +8,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
 import { signupSchema, type SignupInput } from '@/lib/validations/auth'
-import { FullPageSpinner } from '@/components/shared/LoadingSpinner'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import {
+  buttonPrimary,
+  buttonSecondary,
+  displayTitle,
+  eyebrow,
+  fieldError,
+  fieldInput,
+  fieldLabel,
+  inlineLink,
+} from '@/lib/styles'
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -28,7 +38,14 @@ export default function SignUpPage() {
     }
   }, [loading, isSubmitting, user, router])
 
-  if (loading) return <FullPageSpinner />
+  // Inside the auth card, so a compact spinner rather than a full-page one.
+  if (loading) {
+    return (
+      <div className="flex justify-center py-16">
+        <LoadingSpinner />
+      </div>
+    )
+  }
 
   const handleGoogleSignIn = async () => {
     try {
@@ -59,20 +76,12 @@ export default function SignUpPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <p className="font-mono text-xs tracking-[0.2em] text-gp-green-400 uppercase">
-          Grid entry
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Create account</h1>
-        <p className="text-sm text-zinc-400">
-          Set up your account before tickets go on sale.
-        </p>
+        <p className={eyebrow}>Grid entry</p>
+        <h1 className={`${displayTitle} text-3xl font-black text-white`}>Create account</h1>
+        <p className="text-sm text-zinc-300">Set up your account before tickets go on sale.</p>
       </div>
 
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        className="flex w-full items-center justify-center gap-3 rounded-md border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gp-green-500"
-      >
+      <button type="button" onClick={handleGoogleSignIn} className={`${buttonSecondary} w-full`}>
         <svg className="size-4" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -94,20 +103,15 @@ export default function SignUpPage() {
         Continue with Google
       </button>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-white/10" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-asphalt-950 px-3 font-mono text-xs tracking-widest text-zinc-500 uppercase">
-            or
-          </span>
-        </div>
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-white/15" />
+        <span className="text-xs font-semibold tracking-widest text-zinc-300 uppercase">or</span>
+        <span className="h-px flex-1 bg-white/15" />
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="space-y-1.5">
-          <label htmlFor="displayName" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="displayName" className={fieldLabel}>
             Name
           </label>
           <input
@@ -116,19 +120,19 @@ export default function SignUpPage() {
             autoComplete="name"
             aria-invalid={!!errors.displayName}
             aria-describedby={errors.displayName ? 'display-name-error' : undefined}
-            className="w-full rounded-md border border-white/10 bg-asphalt-900 px-3 py-2.5 text-sm text-white transition-colors placeholder:text-zinc-600 focus:border-gp-green-500 focus:ring-2 focus:ring-gp-green-500/25 focus:outline-none aria-invalid:border-red-500"
+            className={fieldInput}
             placeholder="Your full name"
             {...register('displayName')}
           />
           {errors.displayName && (
-            <p id="display-name-error" className="text-xs text-red-400" role="alert">
+            <p id="display-name-error" className={fieldError} role="alert">
               {errors.displayName.message}
             </p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="email" className={fieldLabel}>
             Email
           </label>
           <input
@@ -137,19 +141,19 @@ export default function SignUpPage() {
             autoComplete="email"
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'email-error' : undefined}
-            className="w-full rounded-md border border-white/10 bg-asphalt-900 px-3 py-2.5 text-sm text-white transition-colors placeholder:text-zinc-600 focus:border-gp-green-500 focus:ring-2 focus:ring-gp-green-500/25 focus:outline-none aria-invalid:border-red-500"
+            className={fieldInput}
             placeholder="you@example.com"
             {...register('email')}
           />
           {errors.email && (
-            <p id="email-error" className="text-xs text-red-400" role="alert">
+            <p id="email-error" className={fieldError} role="alert">
               {errors.email.message}
             </p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="password" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="password" className={fieldLabel}>
             Password
           </label>
           <input
@@ -158,19 +162,19 @@ export default function SignUpPage() {
             autoComplete="new-password"
             aria-invalid={!!errors.password}
             aria-describedby={errors.password ? 'password-error' : undefined}
-            className="w-full rounded-md border border-white/10 bg-asphalt-900 px-3 py-2.5 text-sm text-white transition-colors placeholder:text-zinc-600 focus:border-gp-green-500 focus:ring-2 focus:ring-gp-green-500/25 focus:outline-none aria-invalid:border-red-500"
+            className={fieldInput}
             placeholder="Min. 8 characters, 1 uppercase, 1 number"
             {...register('password')}
           />
           {errors.password && (
-            <p id="password-error" className="text-xs text-red-400" role="alert">
+            <p id="password-error" className={fieldError} role="alert">
               {errors.password.message}
             </p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="confirmPassword" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="confirmPassword" className={fieldLabel}>
             Confirm password
           </label>
           <input
@@ -179,12 +183,12 @@ export default function SignUpPage() {
             autoComplete="new-password"
             aria-invalid={!!errors.confirmPassword}
             aria-describedby={errors.confirmPassword ? 'confirm-password-error' : undefined}
-            className="w-full rounded-md border border-white/10 bg-asphalt-900 px-3 py-2.5 text-sm text-white transition-colors placeholder:text-zinc-600 focus:border-gp-green-500 focus:ring-2 focus:ring-gp-green-500/25 focus:outline-none aria-invalid:border-red-500"
+            className={fieldInput}
             placeholder="••••••••"
             {...register('confirmPassword')}
           />
           {errors.confirmPassword && (
-            <p id="confirm-password-error" className="text-xs text-red-400" role="alert">
+            <p id="confirm-password-error" className={fieldError} role="alert">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -193,15 +197,15 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-md bg-gp-green-500 px-4 py-2.5 text-sm font-semibold text-asphalt-950 transition-colors hover:bg-gp-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gp-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className={`${buttonPrimary} min-h-12 w-full`}
         >
           {isSubmitting ? 'Creating account…' : 'Create account'}
         </button>
       </form>
 
-      <p className="text-center text-sm text-zinc-400">
+      <p className="text-center text-sm text-zinc-300">
         Already have an account?{' '}
-        <Link href="/auth/signin" className="font-medium text-gp-gold-500 hover:underline">
+        <Link href="/auth/signin" className={inlineLink}>
           Sign in
         </Link>
       </p>

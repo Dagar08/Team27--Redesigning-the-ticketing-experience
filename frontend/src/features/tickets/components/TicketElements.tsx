@@ -1,8 +1,11 @@
+import type { Ref } from 'react'
 import type { TicketType } from '@/types/firestore'
+import { cn } from '@/lib/utils'
+import { buttonOutline, panel } from '@/lib/styles'
 import { TicketZoneIndicator } from './TicketZoneIndicator'
 
-export const ticketButtonClassName =
-  'inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-white/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/5 active:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gp-green-400 disabled:cursor-not-allowed disabled:opacity-50'
+/** Red outline action used across the ticket screens ("VIEW DETAILS", "RETRY"). */
+export const ticketButtonClassName = buttonOutline
 
 const audFormatter = new Intl.NumberFormat('en-AU', {
   style: 'currency',
@@ -11,10 +14,17 @@ const audFormatter = new Intl.NumberFormat('en-AU', {
   minimumFractionDigits: 0,
 })
 
-export function TicketPrice({ price }: { price: number }) {
+/** Mockup red is only used at this large, black weight, where it passes 3:1 (WCAG large text). */
+export function TicketPrice({ price, className }: { price: number; className?: string }) {
   return (
-    <p className="text-gp-green-400 text-xl font-semibold">
-      {audFormatter.format(price)} <span className="text-xs text-zinc-400">AUD</span>
+    <p
+      className={cn(
+        'font-display text-gp-red-500 text-2xl font-black font-stretch-semi-expanded',
+        className
+      )}
+    >
+      {audFormatter.format(price)}{' '}
+      <span className="font-sans text-xs font-semibold text-zinc-300">AUD</span>
     </p>
   )
 }
@@ -22,19 +32,31 @@ export function TicketPrice({ price }: { price: number }) {
 export function TicketFacts({
   ticket,
   showZoneIndicator = false,
+  align = 'start',
 }: {
   ticket: TicketType
   showZoneIndicator?: boolean
+  /** Cards right-align the facts opposite the price, as in the Browse mockup. */
+  align?: 'start' | 'end'
 }) {
   return (
-    <dl className="grid grid-cols-2 gap-4 text-sm">
+    <dl
+      className={cn(
+        'text-sm',
+        align === 'end'
+          ? 'flex flex-wrap gap-x-6 gap-y-2 sm:ml-auto sm:justify-end sm:text-right'
+          : 'grid grid-cols-2 gap-4'
+      )}
+    >
       <div>
-        <dt className="text-zinc-400">Days covered</dt>
-        <dd className="mt-1 text-white">{ticket.daysCovered.join(', ') || 'Not specified'}</dd>
+        <dt className="text-xs tracking-wide text-zinc-300 uppercase">Days covered</dt>
+        <dd className="font-display mt-1 font-bold text-white">
+          {ticket.daysCovered.join(', ') || 'Not specified'}
+        </dd>
       </div>
       <div>
-        <dt className="text-zinc-400">Zone</dt>
-        <dd className="mt-1 text-white">
+        <dt className="text-xs tracking-wide text-zinc-300 uppercase">Zone</dt>
+        <dd className="font-display mt-1 font-bold text-white">
           {showZoneIndicator ? (
             <TicketZoneIndicator zone={ticket.zone} />
           ) : (
@@ -46,24 +68,30 @@ export function TicketFacts({
   )
 }
 
+const glint = 'skeleton motion-safe:animate-shimmer'
+
+/** Glinting placeholders in the same positions as a ticket card, so the grid keeps its shape. */
 export function TicketLoading() {
   return (
     <div role="status" aria-label="Loading" aria-busy="true">
       <p className="sr-only">Loading tickets...</p>
-      <div aria-hidden="true" className="grid gap-6 md:grid-cols-2 xl:w-2/3">
-        {Array.from({ length: 6 }, (_, index) => (
-          <div
-            key={index}
-            className="bg-asphalt-900 space-y-4 rounded-xl border border-white/10 p-6 motion-safe:animate-pulse"
-          >
-            <div className="h-6 w-3/4 rounded bg-white/10" />
-            <div className="h-7 w-1/3 rounded bg-white/10" />
-            <div className="grid grid-cols-2 gap-4">
-              <div className="h-10 rounded bg-white/10" />
-              <div className="h-10 rounded bg-white/10" />
+      <div aria-hidden="true" className="grid gap-6 md:grid-cols-2">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div key={index} className={cn(panel, 'overflow-hidden')}>
+            <div className="p-4 pb-0">
+              <div className={cn(glint, 'aspect-[1200/729] rounded-xl border border-white/10')} />
             </div>
-            <div className="h-14 rounded bg-white/10" />
-            <div className="h-11 w-2/3 rounded bg-white/10" />
+            <div className="mt-4 space-y-4 border-t border-white/10 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className={cn(glint, 'h-8 w-28 rounded')} />
+                <div className="space-y-2">
+                  <div className={cn(glint, 'ml-auto h-4 w-20 rounded')} />
+                  <div className={cn(glint, 'h-4 w-32 rounded')} />
+                </div>
+              </div>
+              <div className={cn(glint, 'h-12 rounded')} />
+              <div className="border-gp-red-500/60 h-11 w-40 rounded-xl border" />
+            </div>
           </div>
         ))}
       </div>
@@ -71,13 +99,38 @@ export function TicketLoading() {
   )
 }
 
-export function TicketLoadError({ message, retry }: { message: string; retry: () => void }) {
+export const TICKET_LOAD_ERROR_MESSAGE = "We couldn't load tickets right now. Please try again."
+export const TICKET_OFFLINE_MESSAGE = "You're offline. Check your connection and try again."
+
+/**
+ * ERR-01, FS-01 to FS-03: one plain-language message for every failed read
+ * (network, server, permissions, timeout). Technical detail stays in the console.
+ */
+export function describeTicketLoadError() {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return TICKET_OFFLINE_MESSAGE
+  }
+  return TICKET_LOAD_ERROR_MESSAGE
+}
+
+export function TicketLoadError({
+  retry,
+  retryRef,
+}: {
+  retry: () => void
+  retryRef?: Ref<HTMLButtonElement>
+}) {
   return (
-    <div className="bg-asphalt-900 space-y-4 rounded-xl border border-white/10 p-6">
-      <p role="alert" className="text-sm text-red-400">
-        {message}
+    <div className={cn(panel, 'flex flex-col items-center gap-6 px-6 py-16 text-center')}>
+      <p role="alert" className="font-display text-base font-bold text-white sm:text-lg">
+        {describeTicketLoadError()}
       </p>
-      <button type="button" onClick={retry} className={ticketButtonClassName}>
+      <button
+        ref={retryRef}
+        type="button"
+        onClick={retry}
+        className={cn(buttonOutline, 'min-h-14 w-full max-w-sm text-base')}
+      >
         Retry
       </button>
     </div>

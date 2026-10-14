@@ -49,7 +49,7 @@ src/
 │   ├── layout.tsx        # Root layout — Server Component
 │   └── page.tsx          # Landing page — Server Component
 ├── components/
-│   ├── layout/           # DashboardShell, Sidebar, Navbar, PageHeader
+│   ├── layout/           # DashboardShell, Sidebar, MobileNav, navItems, Navbar, PageHeader, BackLink
 │   └── shared/           # ErrorBoundary, LoadingSpinner, EmptyState
 ├── features/             # One folder per business domain
 │   └── [domain]/

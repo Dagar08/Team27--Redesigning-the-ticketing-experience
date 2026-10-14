@@ -36,9 +36,15 @@ seeded tickets. No Firestore schema or security-rule change is required.
 
 ## Interaction and accessibility
 
-The ticket's zone has a persistent green outline. Hover or focus adds a thicker,
-gold dashed outline, and the visible status text identifies the highlighted zone.
+The ticket's zone has a persistent red outline (5.0:1 on the white map). Hover or focus adds a
+thicker, dashed red outline with a red tint, and the visible status text identifies the
+highlighted zone. (Restyled from green and gold to the mockup palette in S3W2.)
 Leaving or blurring restores the baseline unless the user pins the highlight.
+
+Only keyboard focus counts as focus emphasis. A mouse press or tap that focuses the button does
+not, so after unpinning with a click the highlight clears as soon as the pointer leaves the map,
+with no need to click elsewhere on the page. Touch has no hover state, so a tap never leaves a
+stuck hover highlight (S3W2 fix).
 
 The native highlight button has a minimum 44px target and `aria-pressed` for pinning.
 Decorative SVG overlays are hidden from assistive technology; the labelled SVG,

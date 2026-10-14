@@ -1,17 +1,35 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useId, useRef, useState, type PointerEvent } from 'react'
 import { cn } from '@/lib/utils'
+import { focusRing } from '@/lib/styles'
 import { getCircuitZone } from '../data/circuitZones'
 
-export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; label?: string }) {
+/** Touch has no hover, so a tap must not leave a "hover" behind that keeps the zone lit. */
+function canHover(event: PointerEvent) {
+  return event.pointerType !== 'touch'
+}
+
+export function CircuitMap({
+  zone,
+  label = 'Circuit map',
+  overview = false,
+}: {
+  zone?: string
+  label?: string
+  /** Show the whole circuit without ticket-zone details, e.g. on the dashboard. */
+  overview?: boolean
+}) {
   const id = useId()
-  const circuitZone = getCircuitZone(zone)
+  const circuitZone = overview ? undefined : getCircuitZone(zone)
   const displayZone = circuitZone?.label || zone?.trim() || 'Not specified'
   const [hovered, setHovered] = useState(false)
   const [focused, setFocused] = useState(false)
   const [pinned, setPinned] = useState(false)
   const [imageFailed, setImageFailed] = useState(false)
+  // True while a mouse press or tap is focusing the button. Only keyboard focus emphasises
+  // the zone; otherwise unpinning with a click would leave it lit until the page is clicked.
+  const pressing = useRef(false)
   // Associate interaction state with the zone so changing data cannot pin another zone.
   const [interactionZone, setInteractionZone] = useState(zone)
   if (interactionZone !== zone) {
@@ -25,12 +43,14 @@ export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; lab
   const descriptionId = `${id}-description`
   const zoneDescriptionId = `${id}-zone-description`
   const mapId = `${id}-map`
+  const showHover = (event: PointerEvent) => canHover(event) && setHovered(true)
+  const hideHover = (event: PointerEvent) => canHover(event) && setHovered(false)
 
   return (
     <figure aria-label={label} className="min-w-0 space-y-3 font-normal">
       {imageFailed ? (
-        <div className="bg-asphalt-800 flex aspect-[1200/729] items-center justify-center rounded-lg border border-white/10 p-4">
-          <p className="text-sm text-zinc-400">Circuit map image unavailable.</p>
+        <div className="bg-asphalt-800 border-asphalt-600 flex aspect-[1200/729] items-center justify-center rounded-xl border p-4">
+          <p className="text-sm text-zinc-300">Circuit map image unavailable.</p>
         </div>
       ) : (
         <svg
@@ -38,13 +58,15 @@ export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; lab
           viewBox="0 0 1200 729"
           role="img"
           aria-labelledby={`${titleId} ${descriptionId}`}
-          className="block h-auto w-full overflow-hidden rounded-lg bg-white"
+          className="block h-auto w-full overflow-hidden rounded-xl bg-white"
         >
           <title id={titleId}>Albert Park circuit map</title>
           <desc id={descriptionId}>
-            {circuitZone
-              ? `Ticket zone: ${displayZone}. ${circuitZone.description}`
-              : 'Circuit overview. A map location is not specified for this ticket zone.'}
+            {overview
+              ? 'Circuit overview showing the Albert Park track layout and numbered turns.'
+              : circuitZone
+                ? `Ticket zone: ${displayZone}. ${circuitZone.description}`
+                : 'Circuit overview. A map location is not specified for this ticket zone.'}
           </desc>
           <image
             href="/maps/albert-park-circuit.png"
@@ -56,13 +78,14 @@ export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; lab
             <g
               aria-hidden="true"
               data-zone={circuitZone.id}
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
+              onPointerEnter={showHover}
+              onPointerLeave={hideHover}
               className={cn(
                 'cursor-pointer transition-colors motion-reduce:transition-none',
+                // Red reads at 5.0:1 on the white map; emphasis also changes width, dash and fill.
                 emphasized
-                  ? 'fill-gp-gold-500/20 stroke-gp-gold-500'
-                  : 'stroke-gp-green-600 fill-transparent'
+                  ? 'fill-gp-red-500/25 stroke-gp-red-500'
+                  : 'stroke-gp-red-500 fill-transparent'
               )}
               strokeWidth={emphasized ? 10 : 6}
               strokeDasharray={emphasized ? '14 8' : undefined}
@@ -83,15 +106,17 @@ export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; lab
         </svg>
       )}
 
-      <figcaption className="space-y-2 text-sm">
-        <p role="status" className="font-medium text-white">
-          {emphasized ? 'Highlighted zone' : 'Ticket zone'}: {displayZone}
-        </p>
-        <p id={zoneDescriptionId} className="text-zinc-400">
-          {circuitZone?.description ||
-            (zone?.trim() ? 'Map location unavailable for this zone.' : 'Zone not specified.')}
-        </p>
-      </figcaption>
+      {!overview && (
+        <figcaption className="space-y-2 text-sm">
+          <p role="status" className="font-semibold text-white">
+            {emphasized ? 'Highlighted zone' : 'Ticket zone'}: {displayZone}
+          </p>
+          <p id={zoneDescriptionId} className="text-zinc-300">
+            {circuitZone?.description ||
+              (zone?.trim() ? 'Map location unavailable for this zone.' : 'Zone not specified.')}
+          </p>
+        </figcaption>
+      )}
 
       {circuitZone && (
         <button
@@ -101,12 +126,28 @@ export function CircuitMap({ zone, label = 'Circuit map' }: { zone?: string; lab
           aria-controls={imageFailed ? undefined : mapId}
           aria-pressed={pinned}
           disabled={imageFailed}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          onFocus={() => setFocused(true)}
+          onPointerEnter={showHover}
+          onPointerLeave={hideHover}
+          onPointerDown={() => {
+            pressing.current = true
+            // Using a pointer ends any keyboard-focus emphasis.
+            setFocused(false)
+          }}
+          onPointerUp={() => {
+            pressing.current = false
+          }}
+          onPointerCancel={() => {
+            pressing.current = false
+          }}
+          onFocus={() => {
+            if (!pressing.current) setFocused(true)
+          }}
           onBlur={() => setFocused(false)}
           onClick={() => setPinned((current) => !current)}
-          className="border-gp-green-500/40 text-gp-green-400 hover:border-gp-gold-400 hover:text-gp-gold-400 focus-visible:outline-gp-gold-400 inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+          className={cn(
+            'border-gp-red-500 hover:bg-gp-red-500/15 aria-pressed:bg-gp-red-500 inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border px-4 py-2 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none',
+            focusRing
+          )}
         >
           {pinned ? 'Unpin highlight' : 'Highlight zone'}
         </button>
