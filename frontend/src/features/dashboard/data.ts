@@ -8,16 +8,16 @@ import type {
   UpcomingEvent,
 } from './types'
 
-// TODO: replace with a Firestore read once a `races` collection exists.
+// Australian Grand Prix 2027 event dates: 1–4 April.
 export const nextRace: NextRace = {
   name: 'Australian Grand Prix',
   venue: 'Albert Park',
   location: 'Melbourne',
-  dateRange: '1 – 2 January',
+  dateRange: 'Thu 1 – Sun 4 Apr 2027',
   circuitName: 'Albert Park Circuit',
 }
 
-// TODO: replace with a Firestore read once a `standings` collection exists.
+// Existing demonstration standings.
 export const standings: StandingsEntry[] = [
   { position: 1, driverName: 'Max Verstappen', teamName: 'Red Bull Racing', points: 382 },
   { position: 2, driverName: 'Lando Norris', teamName: 'McLaren', points: 312 },
@@ -26,7 +26,6 @@ export const standings: StandingsEntry[] = [
   { position: 5, driverName: 'Carlos Sainz', teamName: 'Ferrari', points: 244 },
 ]
 
-// TODO: replace with real circuit stats once available.
 export const circuitStats: CircuitStats = {
   length: '5.278 km',
   laps: '58',
@@ -34,53 +33,68 @@ export const circuitStats: CircuitStats = {
   distance: '306.1 km',
 }
 
-// TODO: replace with a Firestore read of the signed-in user's ticket.
+// Demonstration ticket, not a confirmed booking.
 export const ticket: Ticket = {
   id: 'ticket-1',
   eventName: 'Australian Grand Prix',
   circuitName: 'Albert Park Circuit',
-  dateRange: '1 – 2 January',
+  dateRange: 'Thu 1 – Sun 4 Apr 2027',
   tier: 'Grandstand',
   holderName: 'Your Name',
   seatDetails: 'Row 1 · Seat 1',
 }
 
-// TODO: replace with a Firestore read once an `upgrades` collection exists.
 export const upgradePackages: UpgradePackage[] = [
-  { id: 'paddock', name: 'Paddock Club Lounge', description: 'Premium culinary & pit lane walk', price: '$950' },
-  { id: 'champions', name: 'Champions Club Access', description: 'Best view of final straight & grid', price: '$650' },
-  { id: 'grandstand', name: 'Grandstand Premium', description: 'Reserved elevated gold seating', price: '$300' },
+  {
+    id: 'paddock',
+    name: 'Paddock Club Lounge',
+    description: 'Premium culinary & pit lane walk',
+    price: '$950',
+  },
+  {
+    id: 'champions',
+    name: 'Champions Club Access',
+    description: 'Best view of final straight & grid',
+    price: '$650',
+  },
+  {
+    id: 'grandstand',
+    name: 'Grandstand Premium',
+    description: 'Reserved elevated gold seating',
+    price: '$300',
+  },
 ]
 
-// TODO: replace with a Firestore read of the season race calendar.
+// Upcoming 2027 events, ordered chronologically.
 export const upcomingRaces: UpcomingRace[] = [
   {
     id: 'race-1',
-    status: 'On-going',
+    status: 'Up-coming',
     raceName: 'Australian Grand Prix',
     venue: 'Albert Park Circuit',
-    dateRange: '1 – 2 January',
+    dateRange: '1 – 4 Apr 2027',
   },
   {
     id: 'race-2',
     status: 'Up-coming',
-    raceName: 'Chinese Grand Prix',
-    venue: 'Shanghai International Circuit',
-    dateRange: '16 – 18 April',
+    raceName: 'Japanese Grand Prix',
+    venue: 'Suzuka Circuit',
+    dateRange: '9 – 11 Apr 2027',
   },
   {
     id: 'race-3',
     status: 'Up-coming',
-    raceName: 'Japanese Grand Prix',
-    venue: 'Suzuka Circuit',
-    dateRange: '22 – 24 April',
+    raceName: 'Chinese Grand Prix',
+    venue: 'Shanghai International Circuit',
+    dateRange: '16 – 18 Apr 2027',
   },
 ]
 
-// TODO: replace with a Firestore read of the next race weekend's session schedule.
+// Confirmed session dates; start times are still TBC.
 export const upcomingEvents: UpcomingEvent[] = [
-  { id: 'session-1', dateRange: '1 – 2 Jan', name: 'Free Practice 1 (FP1)' },
-  { id: 'session-2', dateRange: '1 – 2 Jan', name: 'Free Practice 2 (FP2)' },
-  { id: 'session-3', dateRange: '2 Jan', name: 'Free Practice 3 (FP3)' },
-  { id: 'session-4', dateRange: '2 Jan', name: 'Qualifying Session' },
+  { id: 'session-1', dateRange: 'Fri 2 Apr', name: 'Practice 1 (FP1)' },
+  { id: 'session-2', dateRange: 'Fri 2 Apr', name: 'Sprint Qualifying' },
+  { id: 'session-3', dateRange: 'Sat 3 Apr', name: 'Sprint Race' },
+  { id: 'session-4', dateRange: 'Sat 3 Apr', name: 'Qualifying' },
+  { id: 'session-5', dateRange: 'Sun 4 Apr', name: 'Australian Grand Prix' },
 ]
