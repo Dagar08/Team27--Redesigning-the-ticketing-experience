@@ -11,37 +11,35 @@ function getInitials(name: string): string {
     .toUpperCase()
 }
 
+/** Photo beside name and role, with the bio underneath, as in the "Meet the team" mockup. */
 export function TeamMemberCard({ member }: { member: TeamMember }) {
   return (
-    <div className="flex h-full flex-col items-center rounded-xl border border-white/10 bg-asphalt-900 p-6 text-center shadow-sm">
-      {member.photoUrl ? (
-        <Image
-          src={member.photoUrl}
-          alt={member.name}
-          width={96}
-          height={96}
-          className="h-24 w-24 shrink-0 rounded-full object-cover"
-        />
-      ) : (
-        <div
-          className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-white/10 bg-asphalt-800 text-xl font-semibold text-gp-green-400"
-          aria-hidden="true"
-        >
-          {getInitials(member.name)}
+    <article className="flex h-full flex-col gap-4">
+      <div className="flex items-start gap-4">
+        {member.photoUrl ? (
+          <Image
+            src={member.photoUrl}
+            alt={member.name}
+            width={112}
+            height={112}
+            className="size-28 shrink-0 rounded-xl object-cover"
+          />
+        ) : (
+          <div
+            className="bg-asphalt-800 font-display border-asphalt-600 text-gp-red-500 grid size-28 shrink-0 place-items-center rounded-xl border text-3xl font-black italic"
+            aria-hidden="true"
+          >
+            {getInitials(member.name)}
+          </div>
+        )}
+
+        <div className="min-w-0 pt-1">
+          <h3 className="text-2xl font-semibold break-words text-white">{member.name}</h3>
+          <p className="text-gp-red-400 mt-1 text-sm font-semibold">{member.role}</p>
         </div>
-      )}
+      </div>
 
-      <h3 className="mt-4 break-words text-lg font-semibold text-white">
-        {member.name}
-      </h3>
-
-      <p className="mt-1 text-sm font-medium text-gp-green-400">
-        {member.role}
-      </p>
-
-      <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-400">
-        {member.blurb}
-      </p>
-    </div>
+      <p className="text-sm leading-6 text-zinc-300">{member.blurb}</p>
+    </article>
   )
 }

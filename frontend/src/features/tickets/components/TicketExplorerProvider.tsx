@@ -68,7 +68,10 @@ export function TicketExplorerProvider({ children }: { children: ReactNode }) {
     return (
       <div className="space-y-3 text-white">
         <p>Please sign in to browse tickets.</p>
-        <Link href="/auth/signin" className="text-gp-green-400 hover:underline">
+        <Link
+          href="/auth/signin"
+          className="text-gp-red-400 font-semibold underline underline-offset-2 hover:text-white"
+        >
           Sign in
         </Link>
       </div>

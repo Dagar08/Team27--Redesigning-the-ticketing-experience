@@ -90,14 +90,15 @@ describe('compare error and empty states', () => {
     mocks.explorer.mockReturnValue(catalog({ selectedTickets: [sparse, tickets[1]!] }))
     render(<TicketCompareClient />)
 
-    const daysRow = within(screen.getByRole('table')).getByText('Days').closest('tr')!
-    expect(within(daysRow).getByText('Not specified')).toBeInTheDocument()
-    const zoneRow = within(screen.getByRole('table'))
-      .getByText('Zone', { selector: 'th' })
-      .closest('tr')!
-    expect(within(zoneRow).getByText('Not specified')).toBeInTheDocument()
-    const includesRow = within(screen.getByRole('table')).getByText('Includes').closest('tr')!
-    expect(within(includesRow).getAllByText('Entry')).toHaveLength(2)
+    const table = screen.getByRole('table')
+    const cellFor = (label: string) => within(table).getAllByText(label)[0]!.closest('td')!
+
+    expect(within(cellFor('Days')).getByText('Not specified')).toBeInTheDocument()
+    expect(within(cellFor('Zone')).getByText('Not specified')).toBeInTheDocument()
+    expect(within(cellFor('Includes')).getAllByText('Entry')).toHaveLength(2)
+
+    // A11Y-03: differences are marked with text, not only a tint.
+    expect(within(cellFor('Days')).getByText('Differs')).toBeInTheDocument()
   })
 })
 

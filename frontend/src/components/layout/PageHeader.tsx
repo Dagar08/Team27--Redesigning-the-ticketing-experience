@@ -1,3 +1,6 @@
+import { cn } from '@/lib/utils'
+import { displayTitle } from '@/lib/styles'
+
 interface PageHeaderProps {
   title: string
   description?: string
@@ -6,10 +9,10 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <div className="flex items-start justify-between">
+    <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-        {description && <p className="text-zinc-500 text-sm mt-1">{description}</p>}
+        <h1 className={cn(displayTitle, 'text-3xl font-black text-white sm:text-5xl')}>{title}</h1>
+        {description && <p className="mt-2 text-sm text-zinc-400">{description}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>

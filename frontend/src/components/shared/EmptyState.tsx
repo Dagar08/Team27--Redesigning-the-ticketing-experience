@@ -1,5 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { Inbox } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { displayTitle } from '@/lib/styles'
 
 interface EmptyStateProps {
   title: string
@@ -8,20 +10,15 @@ interface EmptyStateProps {
   action?: React.ReactNode
 }
 
-export function EmptyState({
-  title,
-  description,
-  icon: Icon = Inbox,
-  action,
-}: EmptyStateProps) {
+export function EmptyState({ title, description, icon: Icon = Inbox, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
-        <Icon className="h-6 w-6 text-zinc-400" />
+    <div className="flex flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+      <div className="border-gp-red-500 bg-gp-red-500/10 text-gp-red-500 grid size-14 place-items-center rounded-full border-2">
+        <Icon aria-hidden="true" className="size-6" />
       </div>
       <div>
-        <p className="font-medium text-sm">{title}</p>
-        {description && <p className="text-zinc-500 text-sm mt-1">{description}</p>}
+        <p className={cn(displayTitle, 'text-xl text-white')}>{title}</p>
+        {description && <p className="mt-2 text-sm text-zinc-300">{description}</p>}
       </div>
       {action && <div className="mt-2">{action}</div>}
     </div>

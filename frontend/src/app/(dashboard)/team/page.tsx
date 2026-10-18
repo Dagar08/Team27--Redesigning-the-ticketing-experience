@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { TeamMemberCard } from '@/components/team/TeamMemberCard'
+import { TrackDivider } from '@/components/brand/Brand'
 import { teamMembers, TEAM_NAME } from '@/features/team/data'
+import { cn } from '@/lib/utils'
+import { displayTitle } from '@/lib/styles'
 
 export const metadata: Metadata = {
   title: 'Team',
@@ -9,26 +12,25 @@ export const metadata: Metadata = {
 
 export default function TeamPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-gp-green-400">
+    <div className="mx-auto max-w-5xl space-y-10 py-4">
+      <header className="text-center">
+        <h1 className={cn(displayTitle, 'text-4xl font-black text-white sm:text-6xl')}>
           Meet the team
-        </p>
-
-        <h1 className="text-3xl font-bold tracking-tight text-white">
-          {TEAM_NAME}
         </h1>
-
-        <p className="mt-3 max-w-2xl text-zinc-400">
-          Meet the team behind the Grand Prix ticketing redesign.
+        <TrackDivider className="mx-auto my-6 max-w-sm" />
+        <p className="mx-auto max-w-2xl text-zinc-300">
+          {TEAM_NAME}: the team behind the Australian Grand Prix ticketing redesign.
         </p>
-      </div>
+      </header>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* The first member is centred above the rest, as in the mockup. */}
+      <ul className="bg-asphalt-950 border-asphalt-600 grid gap-10 rounded-3xl border p-6 sm:grid-cols-2 sm:p-10">
         {teamMembers.map((member) => (
-          <TeamMemberCard key={member.id} member={member} />
+          <li key={member.id} className="sm:first:col-span-2 sm:first:mx-auto sm:first:max-w-md">
+            <TeamMemberCard member={member} />
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   )
 }

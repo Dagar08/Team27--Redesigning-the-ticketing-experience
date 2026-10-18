@@ -69,4 +69,4 @@ export async function generateMetadata(
 - [ ] `metadata` is exported
 - [ ] `requireAuth()` is called for protected pages
 - [ ] Client interactivity is in a separate `*Client.tsx` component
-- [ ] Add a nav link in `frontend/src/components/layout/Sidebar.tsx` if it should appear in the sidebar
+- [ ] Add a nav link in `frontend/src/components/layout/navItems.ts` if it should appear in the sidebar and mobile tab bar

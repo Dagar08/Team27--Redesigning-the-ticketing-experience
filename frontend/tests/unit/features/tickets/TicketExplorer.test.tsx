@@ -185,11 +185,14 @@ describe('ticket explorer', () => {
       'New viewing area'
     )
 
-    expect(
-      within(dialog).getByRole('img', {
-        name: 'Albert Park Grand Prix Circuit map',
-      })
-    ).toBeInTheDocument()
+    const map = within(dialog).getByRole('figure', {
+      name: `Circuit map for ${firstTicket.name}`,
+    })
+
+    expect(within(map).getByRole('img', { name: /Albert Park circuit map/ })).toBeInTheDocument()
+
+    // An unrecognised zone keeps the base map without inventing a location.
+    expect(within(map).getByText('Map location unavailable for this zone.')).toBeInTheDocument()
   })
 
   it('keeps a missing zone readable without inventing a location', async () => {
@@ -244,11 +247,7 @@ describe('ticket explorer', () => {
 
     await publish()
 
-    await user.click(
-      screen.getByRole('button', {
-        name: `Add to selection: ${firstTicket.name}`,
-      })
-    )
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
 
     const list = screen.getByRole('list', {
       name: 'Available ticket types',
@@ -372,20 +371,14 @@ describe('ticket explorer', () => {
     await publish()
 
     for (const ticket of tickets.slice(0, 3)) {
-      await user.click(
-        screen.getByRole('button', {
-          name: `Add to selection: ${ticket.name}`,
-        })
-      )
+      await user.click(screen.getByRole('checkbox', { name: `Compare ${ticket.name}` }))
     }
 
-    const fourthButton = screen.getByRole('button', {
-      name: `Add to selection: ${tickets[3]!.name}`,
-    })
+    const fourthButton = screen.getByRole('checkbox', { name: `Compare ${tickets[3]!.name}` })
 
     expect(fourthButton).toBeDisabled()
 
-    expect(fourthButton).toHaveTextContent('Selection limit reached')
+    expect(fourthButton).toHaveAccessibleDescription('Selection limit reached')
 
     await user.click(fourthButton)
 
@@ -517,17 +510,9 @@ describe('ticket explorer', () => {
 
     await publish()
 
-    await user.click(
-      screen.getByRole('button', {
-        name: `Add to selection: ${firstTicket.name}`,
-      })
-    )
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
 
-    await user.click(
-      screen.getByRole('button', {
-        name: `Add to selection: ${secondTicket.name}`,
-      })
-    )
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${secondTicket.name}` }))
 
     expect(screen.getByText('2 ticket types selected')).toBeInTheDocument()
 
@@ -545,11 +530,11 @@ describe('ticket explorer', () => {
       name: firstTicket.name,
     })
 
-    const selectedButton = within(dialog).getByRole('button', {
-      name: `Remove from selection: ${firstTicket.name}`,
+    const selectedButton = within(dialog).getByRole('checkbox', {
+      name: `Compare ${firstTicket.name}`,
     })
 
-    expect(selectedButton).toHaveAttribute('aria-pressed', 'true')
+    expect(selectedButton).toBeChecked()
 
     await user.click(selectedButton)
 
@@ -563,17 +548,9 @@ describe('ticket explorer', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 
-    expect(
-      screen.getByRole('button', {
-        name: `Add to selection: ${firstTicket.name}`,
-      })
-    ).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` })).not.toBeChecked()
 
-    expect(
-      screen.getByRole('button', {
-        name: `Remove from selection: ${secondTicket.name}`,
-      })
-    ).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('checkbox', { name: `Compare ${secondTicket.name}` })).toBeChecked()
 
     await user.click(
       screen.getByRole('button', {
@@ -583,23 +560,11 @@ describe('ticket explorer', () => {
 
     expect(screen.getByText('0 ticket types selected')).toBeInTheDocument()
 
-    expect(
-      screen.getByRole('button', {
-        name: `Add to selection: ${secondTicket.name}`,
-      })
-    ).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('checkbox', { name: `Compare ${secondTicket.name}` })).not.toBeChecked()
 
-    await user.click(
-      screen.getByRole('button', {
-        name: `Add to selection: ${firstTicket.name}`,
-      })
-    )
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
 
-    expect(
-      screen.getByRole('button', {
-        name: `Remove from selection: ${firstTicket.name}`,
-      })
-    ).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` })).toBeChecked()
 
     await user.click(
       screen.getByRole('button', {
@@ -610,6 +575,36 @@ describe('ticket explorer', () => {
     expect(screen.getByText(/No tickets selected/)).toBeInTheDocument()
 
     expect(mocks.read).toHaveBeenCalledTimes(1)
+  })
+
+  it('outlines every compared ticket card until it is unticked', async () => {
+    const user = userEvent.setup()
+
+    render(<Explorer />)
+
+    await publish()
+
+    const cardFor = (ticket: TicketType) =>
+      screen.getByRole('checkbox', { name: `Compare ${ticket.name}` }).closest('article')!
+
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${secondTicket.name}` }))
+
+    expect(cardFor(firstTicket)).toHaveAttribute('data-selected', 'true')
+    expect(cardFor(secondTicket)).toHaveAttribute('data-selected', 'true')
+    expect(cardFor(tickets[2]!)).not.toHaveAttribute('data-selected')
+
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
+
+    expect(cardFor(firstTicket)).not.toHaveAttribute('data-selected')
+    expect(cardFor(secondTicket)).toHaveAttribute('data-selected', 'true')
+
+    // Removing from the selection panel clears the outline too.
+    await user.click(
+      screen.getByRole('button', { name: `Remove ${secondTicket.name} from selection` })
+    )
+
+    expect(cardFor(secondTicket)).not.toHaveAttribute('data-selected')
   })
 
   it('ignores duplicate additions, unknown tickets, and repeated removals', async () => {
@@ -800,11 +795,7 @@ describe('ticket explorer', () => {
       })
     )
 
-    await user.click(
-      screen.getByRole('button', {
-        name: `Add to selection: ${firstTicket.name}`,
-      })
-    )
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
 
     const selection = screen.getByRole('complementary', {
       name: 'Your selection',
@@ -844,11 +835,7 @@ describe('ticket explorer', () => {
 
     await publish()
 
-    await user.click(
-      screen.getByRole('button', {
-        name: `Add to selection: ${firstTicket.name}`,
-      })
-    )
+    await user.click(screen.getByRole('checkbox', { name: `Compare ${firstTicket.name}` }))
 
     mocks.auth.user = {
       uid: 'user-2',
