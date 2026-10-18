@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { HeroVideo } from '@/components/landing/HeroVideo'
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -11,29 +12,19 @@ const KERB_SEGMENTS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
 export default function LandingPage() {
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-asphalt-950">
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster="/media/race-poster.jpg"
-        aria-hidden="true"
-        className="absolute inset-0 size-full object-cover motion-reduce:hidden"
-      >
-        <source src="/media/race-loop.mp4" type="video/mp4" />
-      </video>
+    <main className="bg-asphalt-950 relative flex min-h-screen flex-col overflow-hidden">
+      <HeroVideo />
 
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-r from-asphalt-950 via-asphalt-950/85 to-asphalt-950/40"
+        className="from-asphalt-950 via-asphalt-950/85 to-asphalt-950/40 absolute inset-0 bg-gradient-to-r"
       />
-      <div aria-hidden="true" className="absolute inset-0 bg-asphalt-950/30" />
+      <div aria-hidden="true" className="bg-asphalt-950/30 absolute inset-0" />
 
       <div className="relative flex flex-1 flex-col">
         <header className="flex items-center justify-between px-6 py-6 sm:px-10">
           <div className="flex items-center gap-3">
-            <span className="size-2.5 rounded-full bg-gp-green-500" />
+            <span className="bg-gp-green-500 size-2.5 rounded-full" />
             <span className="font-mono text-xs tracking-[0.2em] text-zinc-300 uppercase">
               Albert Park · Melbourne
             </span>
@@ -58,23 +49,22 @@ export default function LandingPage() {
             </div>
 
             <div className="space-y-5">
-              <p className="font-mono text-xs tracking-[0.25em] text-gp-green-400 uppercase">
+              <p className="text-gp-green-400 font-mono text-xs tracking-[0.25em] uppercase">
                 Official ticketing
               </p>
               <h1 className="text-5xl leading-[1.05] font-bold tracking-tight text-white sm:text-6xl">
-                Welcome to the{' '}
-                <span className="text-gp-gold-500">F1 ticketing experience</span>
+                Welcome to the <span className="text-gp-gold-500">F1 ticketing experience</span>
               </h1>
               <p className="max-w-lg text-lg text-zinc-300">
-                Book grandstand seats, general admission and hospitality passes for all four days
-                of race week — then manage, transfer and access every ticket in one place.
+                Book grandstand seats, general admission and hospitality passes for all four days of
+                race week — then manage, transfer and access every ticket in one place.
               </p>
             </div>
 
             <div>
               <Link
                 href="/auth/signup"
-                className="inline-flex items-center justify-center rounded-md bg-gp-green-500 px-8 py-3.5 text-sm font-semibold text-asphalt-950 transition-colors hover:bg-gp-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gp-green-500"
+                className="bg-gp-green-500 text-asphalt-950 hover:bg-gp-green-400 focus-visible:outline-gp-green-500 inline-flex items-center justify-center rounded-md px-8 py-3.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 Get your tickets
               </Link>
