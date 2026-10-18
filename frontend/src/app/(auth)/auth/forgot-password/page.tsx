@@ -7,6 +7,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
 import { resetPasswordSchema, type ResetPasswordInput } from '@/lib/validations/auth'
+import {
+  buttonPrimary,
+  displayTitle,
+  eyebrow,
+  fieldError,
+  fieldInput,
+  fieldLabel,
+  inlineLink,
+} from '@/lib/styles'
 
 export default function ForgotPasswordPage() {
   const { resetPassword } = useAuth()
@@ -41,19 +50,14 @@ export default function ForgotPasswordPage() {
     return (
       <div className="space-y-8 text-center">
         <div className="space-y-2">
-          <p className="font-mono text-xs tracking-[0.2em] text-gp-green-400 uppercase">
-            Race week access
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Check your email</h1>
-          <p className="text-sm text-zinc-400">
+          <p className={eyebrow}>Race week access</p>
+          <h1 className={`${displayTitle} text-3xl font-black text-white`}>Check your email</h1>
+          <p className="text-sm text-zinc-300">
             If an account exists for that email, we&apos;ve sent a link to reset your password.
           </p>
         </div>
 
-        <Link
-          href="/auth/signin"
-          className="font-medium text-gp-gold-500 hover:underline"
-        >
+        <Link href="/auth/signin" className={inlineLink}>
           Back to sign in
         </Link>
       </div>
@@ -63,18 +67,16 @@ export default function ForgotPasswordPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <p className="font-mono text-xs tracking-[0.2em] text-gp-green-400 uppercase">
-          Race week access
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight text-white">Reset your password</h1>
-        <p className="text-sm text-zinc-400">
+        <p className={eyebrow}>Race week access</p>
+        <h1 className={`${displayTitle} text-3xl font-black text-white`}>Reset your password</h1>
+        <p className="text-sm text-zinc-300">
           Enter your email and we&apos;ll send you a link to reset your password.
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="space-y-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="email" className={fieldLabel}>
             Email
           </label>
           <input
@@ -83,12 +85,12 @@ export default function ForgotPasswordPage() {
             autoComplete="email"
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'email-error' : undefined}
-            className="w-full rounded-md border border-white/10 bg-asphalt-900 px-3 py-2.5 text-sm text-white transition-colors placeholder:text-zinc-600 focus:border-gp-green-500 focus:ring-2 focus:ring-gp-green-500/25 focus:outline-none aria-invalid:border-red-500"
+            className={fieldInput}
             placeholder="you@example.com"
             {...register('email')}
           />
           {errors.email && (
-            <p id="email-error" className="text-xs text-red-400" role="alert">
+            <p id="email-error" className={fieldError} role="alert">
               {errors.email.message}
             </p>
           )}
@@ -97,18 +99,15 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-md bg-gp-green-500 px-4 py-2.5 text-sm font-semibold text-asphalt-950 transition-colors hover:bg-gp-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gp-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className={`${buttonPrimary} min-h-12 w-full`}
         >
           {isSubmitting ? 'Sending…' : 'Send reset link'}
         </button>
       </form>
 
-      <p className="text-center text-sm text-zinc-400">
+      <p className="text-center text-sm text-zinc-300">
         Remembered your password?{' '}
-        <Link
-          href="/auth/signin"
-          className="font-medium text-gp-gold-500 hover:underline"
-        >
+        <Link href="/auth/signin" className={inlineLink}>
           Sign in
         </Link>
       </p>

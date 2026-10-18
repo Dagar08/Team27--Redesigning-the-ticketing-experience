@@ -1,10 +1,5 @@
 import type { TeamMember } from './types'
 
-/**
- * Replace with your actual team's details.
- * Photos: drop images in `frontend/public/team/` and reference them below,
- * e.g. photoUrl: '/team/jane-doe.jpg'. Omit photoUrl to show initials instead.
- */
 export const TEAM_NAME = 'Grand Prix Ticketing Redesign'
 
 export const teamMembers: TeamMember[] = [
@@ -13,30 +8,34 @@ export const teamMembers: TeamMember[] = [
     name: 'Kartikey Dagar',
     role: 'Project Manager',
     blurb: 'A passionate project manager with a focus on delivering high-quality results.',
+    photoUrl: '/team/kartikey-dagar.jpg',
   },
   {
     id: 'member-two',
     name: 'Blake Leonard',
     role: 'Developer',
     blurb: 'Focusing on creating efficient and scalable solutions.',
+    photoUrl: '/team/blake-leonard.png',
   },
   {
     id: 'member-three',
     name: 'Julius Ross',
     role: 'Developer',
     blurb: 'A dedicated developer with a passion for clean and maintainable code.',
+    photoUrl: '/team/julius-ross.jpg',
   },
-    {
+  {
     id: 'member-four',
     name: 'Toby Davies',
     role: 'UX Designer',
     blurb: 'Dedicated to making interfaces intuitive and delightful.',
-    
+    photoUrl: '/team/toby-davies.jpg',
   },
-    {
+  {
     id: 'member-five',
     name: 'Matthew (Kar Wei) Kwong',
     role: 'Business Analyst',
     blurb: 'A detail-oriented business analyst with a focus on driving data-informed decisions.',
+    photoUrl: '/team/matthew-kwong.jpg',
   },
 ]
