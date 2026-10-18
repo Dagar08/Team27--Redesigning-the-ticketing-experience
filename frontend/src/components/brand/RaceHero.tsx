@@ -1,4 +1,3 @@
-
 import Image from 'next/image'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
@@ -13,14 +12,7 @@ interface RaceHeroProps {
   className?: string
 }
 
-export function RaceHero({
-  eyebrow,
-  title,
-  venue,
-  dateRange,
-  action,
-  className,
-}: RaceHeroProps) {
+export function RaceHero({ eyebrow, title, venue, dateRange, action, className }: RaceHeroProps) {
   return (
     <section
       className={cn(
@@ -43,11 +35,7 @@ export function RaceHero({
       />
 
       <div className="relative z-10">
-        {eyebrow && (
-          <p className={cn(displayTitle, 'text-sm text-white')}>
-            {eyebrow}
-          </p>
-        )}
+        {eyebrow && <p className={cn(displayTitle, 'text-sm text-white')}>{eyebrow}</p>}
 
         <h1
           className={cn(

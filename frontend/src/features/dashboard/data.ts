@@ -1,4 +1,3 @@
-
 import type {
   NextRace,
   StandingsEntry,
@@ -46,9 +45,24 @@ export const ticket: Ticket = {
 }
 
 export const upgradePackages: UpgradePackage[] = [
-  { id: 'paddock', name: 'Paddock Club Lounge', description: 'Premium culinary & pit lane walk', price: '$950' },
-  { id: 'champions', name: 'Champions Club Access', description: 'Best view of final straight & grid', price: '$650' },
-  { id: 'grandstand', name: 'Grandstand Premium', description: 'Reserved elevated gold seating', price: '$300' },
+  {
+    id: 'paddock',
+    name: 'Paddock Club Lounge',
+    description: 'Premium culinary & pit lane walk',
+    price: '$950',
+  },
+  {
+    id: 'champions',
+    name: 'Champions Club Access',
+    description: 'Best view of final straight & grid',
+    price: '$650',
+  },
+  {
+    id: 'grandstand',
+    name: 'Grandstand Premium',
+    description: 'Reserved elevated gold seating',
+    price: '$300',
+  },
 ]
 
 // Upcoming 2027 events, ordered chronologically.

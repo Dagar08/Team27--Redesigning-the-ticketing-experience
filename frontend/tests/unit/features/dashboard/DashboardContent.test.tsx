@@ -1,14 +1,8 @@
-
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { TicketCard } from '@/components/dashboard/TicketCard'
 import { RaceHero } from '@/components/brand/RaceHero'
-import {
-  nextRace,
-  ticket,
-  upcomingRaces,
-  upcomingEvents,
-} from '@/features/dashboard/data'
+import { nextRace, ticket, upcomingRaces, upcomingEvents } from '@/features/dashboard/data'
 
 describe('S3W2 dashboard integration', () => {
   it('uses the correct Australian Grand Prix dates', () => {
@@ -49,21 +43,13 @@ describe('S3W2 dashboard integration', () => {
   })
 
   it('renders the Albert Park banner photograph', () => {
-    render(
-      <RaceHero
-        title={nextRace.name}
-        venue={nextRace.venue}
-        dateRange={nextRace.dateRange}
-      />
-    )
+    render(<RaceHero title={nextRace.name} venue={nextRace.venue} dateRange={nextRace.dateRange} />)
 
     const image = screen.getByRole('img', {
       name: /view of albert park/i,
     })
 
-    expect(image.getAttribute('src')).toContain(
-      'albert-park-banner.jpg'
-    )
+    expect(image.getAttribute('src')).toContain('albert-park-banner.jpg')
   })
 
   it('renders a real demo QR graphic and destination link', () => {
@@ -80,8 +66,6 @@ describe('S3W2 dashboard integration', () => {
 
     expect(link.querySelector('svg')).not.toBeNull()
 
-    expect(
-      screen.getByText('Demo link — not valid for entry')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Demo link — not valid for entry')).toBeInTheDocument()
   })
 })
