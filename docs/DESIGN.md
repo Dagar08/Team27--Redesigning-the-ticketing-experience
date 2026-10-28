@@ -176,7 +176,7 @@ Handle loading, error and empty in every data-fetching view.
 - **Error:** plain-language message and a red-outlined Retry, announced with `role="alert"`.
   Never show error codes, stack traces or raw messages (S3W1 rules). Route crashes use
   `RouteError` via `error.tsx`.
-- **Empty:** `EmptyState` (red ring icon, display title, a way forward).
+- **Empty:** `EmptyState` (red ring icon, display title, a way forward). Pass `announce` when the empty state replaces loaded content, so screen readers hear it.
 
 ---
 
