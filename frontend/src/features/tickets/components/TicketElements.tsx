@@ -100,17 +100,29 @@ export function TicketLoading() {
 }
 
 export const TICKET_LOAD_ERROR_MESSAGE = "We couldn't load tickets right now. Please try again."
+/** ERR-04: the same failure, seen from a ticket's detail link. */
+export const TICKET_DETAIL_ERROR_MESSAGE = "We couldn't load this ticket."
 export const TICKET_OFFLINE_MESSAGE = "You're offline. Check your connection and try again."
 
 /**
  * ERR-01, FS-01 to FS-03: one plain-language message for every failed read
  * (network, server, permissions, timeout). Technical detail stays in the console.
  */
-export function describeTicketLoadError() {
+export function describeTicketLoadError(message = TICKET_LOAD_ERROR_MESSAGE) {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     return TICKET_OFFLINE_MESSAGE
   }
-  return TICKET_LOAD_ERROR_MESSAGE
+  return message
+}
+
+/** Query parameter that makes a comparison shareable (ERR-09). */
+export const COMPARE_TICKETS_PARAM = 'tickets'
+
+export function compareHref(tickets: Pick<TicketType, 'id'>[]) {
+  const ids = tickets.map((ticket) => ticket.id).join(',')
+  return ids
+    ? `/tickets/compare?${COMPARE_TICKETS_PARAM}=${encodeURIComponent(ids)}`
+    : '/tickets/compare'
 }
 
 export function TicketLoadError({

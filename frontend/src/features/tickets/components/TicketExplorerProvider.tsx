@@ -9,8 +9,12 @@ import type { TicketType } from '@/types/firestore'
 
 interface TicketExplorerContextValue extends ReturnType<typeof useTicketTypes> {
   selectedTickets: TicketType[]
+  /** Selected IDs that are no longer in the loaded catalog (ERR-09). */
+  unavailableCount: number
   addTicket: (id: string) => void
   removeTicket: (id: string) => void
+  /** Replace the selection, e.g. from a shared Compare link. Unknown IDs count as unavailable. */
+  selectTickets: (ids: string[]) => void
   clearSelection: () => void
 }
 
@@ -20,17 +24,27 @@ export const MAX_SELECTED_TICKETS = 3
 function TicketExplorerState({ children }: { children: ReactNode }) {
   const catalog = useTicketTypes()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const inCatalog = (id: string) => catalog.tickets.some((ticket) => ticket.id === id)
   const selectedTickets = catalog.tickets.filter((ticket) => selectedIds.includes(ticket.id))
+  const unavailableCount =
+    catalog.loading || catalog.error ? 0 : selectedIds.length - selectedTickets.length
 
   const addTicket = (id: string) => {
-    if (!catalog.tickets.some((ticket) => ticket.id === id)) return
+    if (!inCatalog(id)) return
 
     setSelectedIds((current) => {
-      if (current.includes(id)) return current
-      if (current.length >= MAX_SELECTED_TICKETS) return current
+      // Unavailable tickets give up their place to a new choice.
+      const available = current.filter(inCatalog)
+      if (available.includes(id)) return available
+      if (available.length >= MAX_SELECTED_TICKETS) return available
 
-      return [...current, id]
+      return [...available, id]
     })
+  }
+
+  const selectTickets = (ids: string[]) => {
+    const unique = [...new Set(ids.map((id) => id.trim()).filter(Boolean))]
+    setSelectedIds(unique.slice(0, MAX_SELECTED_TICKETS))
   }
 
   const removeTicket = (id: string) => {
@@ -42,8 +56,10 @@ function TicketExplorerState({ children }: { children: ReactNode }) {
       value={{
         ...catalog,
         selectedTickets,
+        unavailableCount,
         addTicket,
         removeTicket,
+        selectTickets,
         clearSelection: () => setSelectedIds([]),
       }}
     >

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { TicketBrowseClient } from '@/features/tickets/components/TicketBrowseClient'
 
 export const metadata: Metadata = {
-  title: 'Browse tickets',
+  title: 'Tickets',
 }
 
 export default function TicketsPage() {
