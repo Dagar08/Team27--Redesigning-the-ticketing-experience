@@ -50,7 +50,10 @@ export function CircuitMap({
     <figure aria-label={label} className="min-w-0 space-y-3 font-normal">
       {imageFailed ? (
         <div className="bg-asphalt-800 border-asphalt-600 flex aspect-[1200/729] items-center justify-center rounded-xl border p-4">
-          <p className="text-sm text-zinc-300">Circuit map image unavailable.</p>
+          {/* FS-04 wording; the dashboard overview has no zone to name. */}
+          <p className="text-sm text-zinc-300">
+            {overview ? 'Circuit map not available.' : 'Zone map not available.'}
+          </p>
         </div>
       ) : (
         <svg
@@ -113,7 +116,7 @@ export function CircuitMap({
           </p>
           <p id={zoneDescriptionId} className="text-zinc-300">
             {circuitZone?.description ||
-              (zone?.trim() ? 'Map location unavailable for this zone.' : 'Zone not specified.')}
+              (zone?.trim() ? 'Zone map not available.' : 'Zone not specified.')}
           </p>
         </figcaption>
       )}

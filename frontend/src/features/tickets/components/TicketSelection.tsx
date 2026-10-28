@@ -1,13 +1,14 @@
 'use client'
 
-import { useId } from 'react'
+import { useId, useRef } from 'react'
 import Link from 'next/link'
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { buttonSecondary, displayTitle, focusRing, panel } from '@/lib/styles'
 import type { TicketType } from '@/types/firestore'
 import { MAX_SELECTED_TICKETS, useTicketExplorer } from './TicketExplorerProvider'
-import { TicketPrice } from './TicketElements'
+import { TicketPrice, compareHref } from './TicketElements'
+import { useRemovalFocus } from '../hooks/useRemovalFocus'
 
 /** The red "COMPARE" checkbox from the Browse mockup; it adds or removes the ticket from the selection. */
 export function TicketCompareToggle({ ticket }: { ticket: TicketType }) {
@@ -62,10 +63,18 @@ export function TicketCompareToggle({ ticket }: { ticket: TicketType }) {
 
 export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string) => void }) {
   const { selectedTickets, removeTicket, clearSelection } = useTicketExplorer()
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const { removeButtonRef, markRemoved } = useRemovalFocus(selectedTickets.length, headingRef)
 
   return (
     <aside aria-label="Your selection" className={cn(panel, 'space-y-4 self-start p-5 sm:p-6')}>
-      <h2 className={cn(displayTitle, 'text-lg text-white sm:text-xl')}>Your selection</h2>
+      <h2
+        ref={headingRef}
+        tabIndex={-1}
+        className={cn(displayTitle, 'rounded-sm text-lg text-white sm:text-xl', focusRing)}
+      >
+        Your selection
+      </h2>
 
       <p role="status" className="text-sm font-semibold text-white">
         {selectedTickets.length} ticket {selectedTickets.length === 1 ? 'type' : 'types'} selected
@@ -82,7 +91,7 @@ export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string)
       ) : (
         <>
           <ul className="space-y-3">
-            {selectedTickets.map((ticket) => (
+            {selectedTickets.map((ticket, index) => (
               <li
                 key={ticket.id}
                 className="bg-asphalt-950 border-asphalt-600 space-y-3 rounded-xl border p-4"
@@ -102,9 +111,13 @@ export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string)
                 <TicketPrice price={ticket.priceAud} className="text-xl" />
 
                 <button
+                  ref={removeButtonRef(index)}
                   type="button"
                   aria-label={`Remove ${ticket.name} from selection`}
-                  onClick={() => removeTicket(ticket.id)}
+                  onClick={() => {
+                    markRemoved(index)
+                    removeTicket(ticket.id)
+                  }}
                   className={buttonSecondary}
                 >
                   Remove
@@ -115,7 +128,7 @@ export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string)
 
           {selectedTickets.length >= 2 && (
             <Link
-              href="/tickets/compare"
+              href={compareHref(selectedTickets)}
               className={cn(
                 displayTitle,
                 'border-gp-red-500 hover:bg-gp-red-500/15 active:bg-gp-red-500/25 flex min-h-20 w-full items-center justify-center rounded-2xl border-2 text-2xl text-white transition-colors',
@@ -126,7 +139,15 @@ export function TicketSelection({ onViewDetails }: { onViewDetails: (id: string)
             </Link>
           )}
 
-          <button type="button" onClick={clearSelection} className={buttonSecondary}>
+          <button
+            type="button"
+            onClick={() => {
+              // No Remove buttons are left, so focus falls back to the heading.
+              markRemoved(0)
+              clearSelection()
+            }}
+            className={buttonSecondary}
+          >
             Clear selection
           </button>
         </>

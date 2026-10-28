@@ -127,8 +127,10 @@ export function TicketBrowseClient() {
                 <div className={panel}>
                   <EmptyState
                     icon={Ticket}
-                    title="No tickets available"
-                    description="Please check back soon for available ticket types."
+                    // EMP-02 wording, announced when it appears.
+                    title="No tickets are on sale yet."
+                    description="Check back soon."
+                    announce
                     action={
                       <button type="button" onClick={retry} className={ticketButtonClassName}>
                         Check again
@@ -159,8 +161,13 @@ export function TicketBrowseClient() {
         </div>
       </div>
 
-      {activeTicketId && !loading && !error && (
-        <TicketDetailsDialog ticket={activeTicket ?? null} onClose={closeTicketDetails} />
+      {/* ERR-04: a detail link whose read fails explains it in the modal. */}
+      {activeTicketId && !loading && (
+        <TicketDetailsDialog
+          ticket={activeTicket ?? null}
+          onClose={closeTicketDetails}
+          onRetry={error ? retry : undefined}
+        />
       )}
     </div>
   )

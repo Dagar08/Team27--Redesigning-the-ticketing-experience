@@ -95,7 +95,7 @@ describe('CircuitMap', () => {
     expect(map.querySelector('image')).toHaveAttribute('href', '/maps/albert-park-circuit.png')
     expect(map.querySelector('[data-zone]')).not.toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('Ticket zone: New viewing area')
-    expect(screen.getByText('Map location unavailable for this zone.')).toBeInTheDocument()
+    expect(screen.getByText('Zone map not available.')).toBeInTheDocument()
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
@@ -270,7 +270,7 @@ describe('CircuitMap', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Highlighted zone: Turn 3')
 
     fireEvent.error(screen.getByRole('img').querySelector('image')!)
-    expect(screen.getByText('Circuit map image unavailable.')).toBeInTheDocument()
+    expect(screen.getByText('Zone map not available.')).toBeInTheDocument()
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
     expect(button).toBeDisabled()
     expect(screen.getByRole('status')).toHaveTextContent('Ticket zone: Turn 3')

@@ -16,8 +16,9 @@ Open **Tickets** in the sidebar (or the mobile tab bar) or **View event** on the
   or browser Back; the browse list and selection stay in place.
 - Details have shareable URLs such as `/tickets?ticket=grandstand-turn-3-4-day`.
   Refreshing or opening a valid URL loads the same modal after the catalog loads.
-  An unknown ID shows a ticket-not-found modal. Closing a direct link returns to
-  the browse URL. No separate detail page is needed.
+  An unknown ID shows a ticket-not-found modal with a **Back to tickets** link. If the catalog
+  read fails, the modal says "We couldn't load this ticket." with Retry and Close. Closing a
+  direct link returns to the browse URL. No separate detail page is needed.
 - Browse, the detail modal and Compare share one catalog request and handle loading, read failures with a
   retry button, and empty or missing tickets. Optional fields have neutral fallbacks.
   See [S3W2 error and empty-state hardening](S3W2-ERROR-HARDENING.md) for how the code maps to the S3W1 acceptance criteria (ERR, EMP, FS, A11Y).
@@ -28,6 +29,10 @@ Open **Tickets** in the sidebar (or the mobile tab bar) or **View event** on the
   Every compared ticket's card is outlined in red on Browse until it is unticked or removed. Selection
   is in memory and resets on a full reload, leaving
   the ticket explorer, or changing users. It does not reserve or purchase tickets.
+- Compare URLs are shareable: `/tickets/compare?tickets=id-a,id-b`. Opening one replaces the
+  selection with those tickets (up to three), and the address bar follows as columns are removed.
+  A ticket in the link that is no longer in the catalog is reported ("One ticket is no longer
+  available") instead of silently dropped.
 
 The catalog must already be seeded in the configured Firebase project. See
 [Firestore schema](FIRESTORE-SCHEMA.md#tickettype-collection) and the existing

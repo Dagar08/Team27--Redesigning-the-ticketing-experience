@@ -22,8 +22,10 @@ function catalog(overrides: Record<string, unknown> = {}) {
     error: null,
     retry: vi.fn(),
     selectedTickets: [] as TicketType[],
+    unavailableCount: 0,
     addTicket: vi.fn(),
     removeTicket: vi.fn(),
+    selectTickets: vi.fn(),
     clearSelection: vi.fn(),
     ...overrides,
   }
@@ -31,6 +33,7 @@ function catalog(overrides: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  window.history.replaceState(null, '', '/tickets/compare')
 })
 
 afterEach(() => {
@@ -70,12 +73,79 @@ describe('compare error and empty states', () => {
     expect(screen.getByRole('link', { name: 'Browse tickets' })).toHaveAttribute('href', '/tickets')
   })
 
-  it('EMP-05: names the selected ticket and asks for one more', () => {
+  it('EMP-05: names the selected ticket, shows its details and asks for one more', () => {
     mocks.explorer.mockReturnValue(catalog({ selectedTickets: [tickets[0]!] }))
     render(<TicketCompareClient />)
 
-    expect(screen.getByText('Add at least one more ticket to compare')).toBeInTheDocument()
+    // A11Y-12: the prompt is announced.
+    expect(
+      screen.getByText('Add at least one more ticket to compare').closest('[role="status"]')
+    ).toBeInTheDocument()
     expect(screen.getByText(`Selected: ${tickets[0]!.name}.`, { exact: false })).toBeInTheDocument()
+
+    const table = screen.getByRole('table')
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(1)
+    expect(within(table).getByRole('heading', { name: tickets[0]!.name })).toBeInTheDocument()
+    expect(within(table).getByText(tickets[0]!.daysCovered.join(', '))).toBeInTheDocument()
+    expect(within(table).queryByText('Differs')).not.toBeInTheDocument()
+  })
+
+  it('ERR-09: a shared link sets the selection, and the URL follows the compared tickets', () => {
+    window.history.replaceState(null, '', '/tickets/compare?tickets=a,b')
+    const value = catalog({ selectedTickets: [tickets[0]!, tickets[1]!] })
+    mocks.explorer.mockReturnValue(value)
+    render(<TicketCompareClient />)
+
+    expect(value.selectTickets).toHaveBeenCalledWith(['a', 'b'])
+    expect(new URLSearchParams(window.location.search).get('tickets')).toBe(
+      `${tickets[0]!.id},${tickets[1]!.id}`
+    )
+  })
+
+  it('ERR-09: says when a selected ticket is no longer available', () => {
+    mocks.explorer.mockReturnValue(
+      catalog({ selectedTickets: [tickets[0]!, tickets[1]!], unavailableCount: 1 })
+    )
+    render(<TicketCompareClient />)
+
+    expect(screen.getByText(/^One ticket is no longer available\./)).toHaveAttribute(
+      'role',
+      'status'
+    )
+    expect(screen.getByRole('table')).toBeInTheDocument()
+  })
+
+  it('A11Y-08/A11Y-12: removing a column announces it and keeps focus on the page', async () => {
+    const value = catalog({ selectedTickets: tickets.slice(0, 3) })
+    mocks.explorer.mockReturnValue(value)
+    const user = userEvent.setup()
+    const { rerender } = render(<TicketCompareClient />)
+
+    await user.click(
+      screen.getByRole('button', { name: `Remove ${tickets[0]!.name} from comparison` })
+    )
+    expect(value.removeTicket).toHaveBeenCalledWith(tickets[0]!.id)
+    mocks.explorer.mockReturnValue({ ...value, selectedTickets: tickets.slice(1, 3) })
+    rerender(<TicketCompareClient />)
+
+    expect(
+      screen.getByRole('button', { name: `Remove ${tickets[1]!.name} from comparison` })
+    ).toHaveFocus()
+    expect(screen.getByText(`${tickets[0]!.name} removed from comparison.`)).toHaveAttribute(
+      'role',
+      'status'
+    )
+
+    // Below two tickets, focus moves to the prompt asking for another.
+    await user.click(
+      screen.getByRole('button', { name: `Remove ${tickets[2]!.name} from comparison` })
+    )
+    mocks.explorer.mockReturnValue({ ...value, selectedTickets: [tickets[1]!] })
+    rerender(<TicketCompareClient />)
+
+    expect(
+      screen.getByText('Add at least one more ticket to compare').closest('[tabindex="-1"]')
+    ).toHaveFocus()
   })
 
   it('shows neutral fallbacks for missing compare fields and duplicate list items', () => {

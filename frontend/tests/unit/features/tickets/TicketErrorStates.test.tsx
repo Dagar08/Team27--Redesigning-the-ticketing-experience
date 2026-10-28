@@ -150,20 +150,61 @@ describe('ERR-01 to ERR-03, FS-01 to FS-03: failed catalog reads on Browse', () 
     await user.click(retryButton)
     expect(mocks.read).toHaveBeenCalledTimes(3)
   })
+})
 
-  it('opens a direct detail link once a failed catalog read is retried', async () => {
+describe('ERR-04, ERR-05: detail links', () => {
+  it('ERR-04: a failed read on a detail link explains it in the modal, focused, with Retry', async () => {
     window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
     const user = userEvent.setup()
     render(<Explorer />)
 
     await act(async () => requests[0]!.reject(firebaseError('unavailable')))
 
-    expect(screen.getByRole('alert')).toHaveTextContent(ERR_01)
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    const dialog = screen.getByRole('dialog', { name: 'Ticket details' })
+    const message = within(dialog).getByRole('alert')
+    expect(message).toHaveTextContent("We couldn't load this ticket.")
+    expect(message).not.toHaveTextContent('unavailable')
+    expect(message).toHaveFocus()
 
-    await user.click(screen.getByRole('button', { name: 'Retry' }))
-    await act(async () => requests[1]!.resolve(snapshot(tickets)))
+    await user.click(within(dialog).getByRole('button', { name: 'Retry' }))
+    await act(async () => requests[1]!.reject(firebaseError('unavailable')))
+    expect(screen.getByRole('dialog', { name: 'Ticket details' })).toBeInTheDocument()
+    expect(within(screen.getByRole('dialog')).getByRole('alert')).toHaveFocus()
+
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Retry' }))
+    await act(async () => requests[2]!.resolve(snapshot(tickets)))
     expect(screen.getByRole('dialog', { name: firstTicket.name })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Close ticket details' })).toHaveFocus()
+  })
+
+  it('ERR-04: Close dismisses the failed detail modal and leaves the Browse error', async () => {
+    window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
+    const user = userEvent.setup()
+    render(<Explorer />)
+
+    await act(async () => requests[0]!.reject(firebaseError('unavailable')))
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(window.location.search).toBe('')
+    expect(screen.getByRole('alert')).toHaveTextContent(ERR_01)
+  })
+
+  it('ERR-05: an unknown ticket shows "Ticket not found" with a Back to tickets link', async () => {
+    window.history.replaceState(null, '', '/tickets?ticket=missing-ticket')
+    const user = userEvent.setup()
+    render(<Explorer />)
+
+    await act(async () => requests[0]!.resolve(snapshot(tickets)))
+
+    const dialog = screen.getByRole('dialog', { name: 'Ticket not found' })
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('link is invalid')
+    const back = within(dialog).getByRole('link', { name: 'Back to tickets' })
+    expect(back).toHaveAttribute('href', '/tickets')
+
+    await user.click(back)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: firstTicket.name })).toBeInTheDocument()
   })
 })
 
@@ -213,12 +254,14 @@ describe('FS-06 and empty states: missing and malformed data', () => {
     expect(screen.getByRole('dialog', { name: 'Partial ticket' })).toBeInTheDocument()
   })
 
-  it('shows the empty state when every record is unusable and can check again', async () => {
+  it('EMP-02/A11Y-12: announces the empty state when every record is unusable and can check again', async () => {
     const user = userEvent.setup()
     render(<Explorer />)
 
     await act(async () => requests[0]!.resolve(snapshot([{ id: 'broken' }])))
-    expect(screen.getByText('No tickets available')).toBeInTheDocument()
+    expect(
+      screen.getByText('No tickets are on sale yet.').closest('[role="status"]')
+    ).toHaveTextContent('No tickets are on sale yet.Check back soon.')
 
     await user.click(screen.getByRole('button', { name: 'Check again' }))
     expect(mocks.read).toHaveBeenCalledTimes(2)
@@ -226,18 +269,7 @@ describe('FS-06 and empty states: missing and malformed data', () => {
     expect(screen.getByRole('heading', { name: firstTicket.name })).toBeInTheDocument()
   })
 
-  it('explains an invalid detail link', async () => {
-    window.history.replaceState(null, '', '/tickets?ticket=missing-ticket')
-    render(<Explorer />)
-
-    await act(async () => requests[0]!.resolve(snapshot(tickets)))
-
-    const dialog = screen.getByRole('dialog', { name: 'Ticket not found' })
-    expect(within(dialog).getByRole('alert')).toHaveTextContent('link is invalid')
-    expect(within(dialog).getByRole('button', { name: 'Back to browse' })).toBeInTheDocument()
-  })
-
-  it('replaces a failed detail map image with a fallback', async () => {
+  it('FS-04: replaces a failed detail map image with "Zone map not available"', async () => {
     window.history.replaceState(null, '', `/tickets?ticket=${firstTicket.id}`)
     render(<Explorer />)
 
@@ -245,6 +277,6 @@ describe('FS-06 and empty states: missing and malformed data', () => {
 
     const dialog = screen.getByRole('dialog', { name: firstTicket.name })
     fireEvent.error(dialog.querySelector('image')!)
-    expect(within(dialog).getByText('Circuit map image unavailable.')).toBeInTheDocument()
+    expect(within(dialog).getByText('Zone map not available.')).toBeInTheDocument()
   })
 })

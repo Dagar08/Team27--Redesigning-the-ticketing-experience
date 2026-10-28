@@ -1,12 +1,18 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import Link from 'next/link'
 import { X } from 'lucide-react'
 import type { TicketType } from '@/types/firestore'
 import { cn } from '@/lib/utils'
-import { buttonOutline, displayBlock, focusRing } from '@/lib/styles'
+import { buttonOutline, buttonSecondary, displayBlock, focusRing } from '@/lib/styles'
 import { CircuitMap } from './CircuitMap'
-import { TicketFacts, TicketPrice } from './TicketElements'
+import {
+  TICKET_DETAIL_ERROR_MESSAGE,
+  TicketFacts,
+  TicketPrice,
+  describeTicketLoadError,
+} from './TicketElements'
 import { TicketCompareToggle } from './TicketSelection'
 
 /** Heavy, wide title case ("Zone and Location", "What's Included"). */
@@ -34,12 +40,17 @@ function TicketBenefits({ title, items }: { title: string; items?: string[] }) {
 export function TicketDetailsDialog({
   ticket,
   onClose,
+  onRetry,
 }: {
   ticket: TicketType | null
   onClose: () => void
+  /** Set when the catalog read failed, so the ticket could not be loaded (ERR-04). */
+  onRetry?: () => void
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const errorMessageRef = useRef<HTMLParagraphElement>(null)
+  const loadFailed = Boolean(onRetry)
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -50,7 +61,8 @@ export function TicketDetailsDialog({
 
     document.body.style.overflow = 'hidden'
     dialog.showModal()
-    closeButtonRef.current?.focus()
+    // Retry remounts the dialog once the catalog settles, so this also runs after each retry.
+    ;(errorMessageRef.current ?? closeButtonRef.current)?.focus()
 
     return () => {
       if (dialog.open) {
@@ -96,7 +108,7 @@ export function TicketDetailsDialog({
             id="ticket-details-title"
             className={cn(displayBlock, 'min-w-0 flex-1 text-2xl sm:text-4xl lg:text-5xl')}
           >
-            {ticket?.name || 'Ticket not found'}
+            {loadFailed ? 'Ticket details' : ticket?.name || 'Ticket not found'}
           </h2>
 
           <button
@@ -114,7 +126,35 @@ export function TicketDetailsDialog({
         </header>
 
         <div className="p-5 sm:p-8">
-          {ticket ? (
+          {loadFailed ? (
+            <div className="flex flex-col items-center gap-6 py-10 text-center">
+              <p
+                ref={errorMessageRef}
+                role="alert"
+                tabIndex={-1}
+                className={cn('font-display text-base font-bold text-white sm:text-lg', focusRing)}
+              >
+                {describeTicketLoadError(TICKET_DETAIL_ERROR_MESSAGE)}
+              </p>
+
+              <div className="flex w-full max-w-sm flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className={cn(buttonOutline, 'min-h-14 text-base')}
+                >
+                  Retry
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className={cn(buttonSecondary, 'min-h-14 text-base')}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : ticket ? (
             <div className="grid gap-8 lg:grid-cols-3">
               <div className="lg:col-span-2">
                 <TicketFacts ticket={ticket} showZoneIndicator />
@@ -165,13 +205,17 @@ export function TicketDetailsDialog({
                 another ticket from the browse list.
               </p>
 
-              <button
-                type="button"
-                onClick={onClose}
+              {/* ERR-05: a real link to the list; a plain click closes the modal in place. */}
+              <Link
+                href="/tickets"
+                onClick={(event) => {
+                  event.preventDefault()
+                  onClose()
+                }}
                 className={cn(buttonOutline, 'min-h-14 w-full max-w-sm text-base')}
               >
-                Back to browse
-              </button>
+                Back to tickets
+              </Link>
             </div>
           )}
         </div>
