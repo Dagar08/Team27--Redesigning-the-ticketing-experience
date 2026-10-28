@@ -192,7 +192,7 @@ describe('ticket explorer', () => {
     expect(within(map).getByRole('img', { name: /Albert Park circuit map/ })).toBeInTheDocument()
 
     // An unrecognised zone keeps the base map without inventing a location.
-    expect(within(map).getByText('Map location unavailable for this zone.')).toBeInTheDocument()
+    expect(within(map).getByText('Zone map not available.')).toBeInTheDocument()
   })
 
   it('keeps a missing zone readable without inventing a location', async () => {
@@ -300,8 +300,8 @@ describe('ticket explorer', () => {
     expect(within(dialog).getByRole('alert')).toHaveTextContent('no longer in the catalog')
 
     await user.click(
-      within(dialog).getByRole('button', {
-        name: 'Back to browse',
+      within(dialog).getByRole('link', {
+        name: 'Back to tickets',
       })
     )
 
@@ -675,6 +675,77 @@ describe('ticket explorer', () => {
     ).toBeInTheDocument()
   })
 
+  it('ERR-09: counts shared selections that are no longer in the catalog until replaced', async () => {
+    function SharedSelection() {
+      const { selectTickets, addTicket, unavailableCount, selectedTickets } = useTicketExplorer()
+
+      return (
+        <>
+          <button onClick={() => selectTickets([firstTicket.id, 'retired', 'gone', 'extra'])}>
+            Open shared link
+          </button>
+          <button onClick={() => addTicket(secondTicket.id)}>Add second</button>
+          <p>
+            {selectedTickets.length} available, {unavailableCount} unavailable
+          </p>
+        </>
+      )
+    }
+
+    const user = userEvent.setup()
+
+    render(
+      <TicketExplorerProvider>
+        <SharedSelection />
+      </TicketExplorerProvider>
+    )
+
+    await publish()
+
+    // At most three IDs are kept from a link.
+    await user.click(screen.getByRole('button', { name: 'Open shared link' }))
+    expect(screen.getByText('1 available, 2 unavailable')).toBeInTheDocument()
+
+    // Adding a ticket frees the unavailable slots.
+    await user.click(screen.getByRole('button', { name: 'Add second' }))
+    expect(screen.getByText('2 available, 0 unavailable')).toBeInTheDocument()
+  })
+
+  it('A11Y-08: keeps focus in the selection panel after Remove and Clear selection', async () => {
+    const user = userEvent.setup()
+
+    render(<Explorer />)
+
+    await publish()
+
+    for (const ticket of [firstTicket, secondTicket, tickets[2]!]) {
+      await user.click(screen.getByRole('checkbox', { name: `Compare ${ticket.name}` }))
+    }
+
+    const selection = screen.getByRole('complementary', { name: 'Your selection' })
+
+    // ERR-09: the Compare link carries the selection (in price order) so it can be shared.
+    expect(
+      within(selection).getByRole('link', { name: 'Compare selected tickets' })
+    ).toHaveAttribute(
+      'href',
+      `/tickets/compare?tickets=${encodeURIComponent(
+        [secondTicket.id, firstTicket.id, tickets[2]!.id].join(',')
+      )}`
+    )
+
+    // Removing the first entry focuses the Remove button that takes its place.
+    await user.click(
+      within(selection).getByRole('button', { name: `Remove ${secondTicket.name} from selection` })
+    )
+    expect(
+      within(selection).getByRole('button', { name: `Remove ${firstTicket.name} from selection` })
+    ).toHaveFocus()
+
+    await user.click(within(selection).getByRole('button', { name: 'Clear selection' }))
+    expect(within(selection).getByRole('heading', { name: 'Your selection' })).toHaveFocus()
+  })
+
   it('retries a failed ticket catalog request', async () => {
     const user = userEvent.setup()
 
@@ -736,7 +807,7 @@ describe('ticket explorer', () => {
 
     await publish([])
 
-    expect(screen.getByText('No tickets available')).toBeInTheDocument()
+    expect(screen.getByText('No tickets are on sale yet.')).toBeInTheDocument()
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 
